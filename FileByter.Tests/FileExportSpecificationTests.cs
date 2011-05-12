@@ -6,11 +6,12 @@ namespace FileByter.Tests
 {
 	public class FileExportSpecificationTests
 	{
-		[Fact()]
+		private readonly FileExportSpecificationFactory _specFactory = new FileExportSpecificationFactory();
+
+		[Fact]
 		public void Should_use_the_custom_formatter()
 		{
-			var exportSpecification = new FileExportSpecification();
-			var fileExportSpecification = exportSpecification.Create<SimpleObject>(cfg =>
+			var fileExportSpecification = _specFactory.Create<SimpleObject>(cfg =>
 			{
 				cfg.Add(x => x.Id, v => v.ToString() + "_TEST"); ;
 			});
@@ -23,8 +24,7 @@ namespace FileByter.Tests
 		[Fact]
 		public void Should_use_the_default_formatter_of_object()
 		{
-			var exportSpecification = new FileExportSpecification();
-			var fileExportSpecification = exportSpecification.Create<SimpleObject>();
+			var fileExportSpecification = _specFactory.Create<SimpleObject>();
 			fileExportSpecification.ColumnDelimeter = "	";
 
 			var simpleObject = new SimpleObject { Id = 2 };
@@ -35,7 +35,7 @@ namespace FileByter.Tests
 		[Fact]
 		public void Should_use_a_specially_configured_type_default()
 		{
-			var exportSpecification = new FileExportSpecification();
+			var exportSpecification = new FileExportSpecificationFactory();
 			exportSpecification.AddDefault<int>(value => value + "_ASDF");
 
 			var fileExportSpecification = exportSpecification.Create<SimpleObject>();
@@ -60,12 +60,11 @@ namespace FileByter.Tests
 
 			string filePath = Path.GetTempFileName();
 
-			var exportSpecification = new FileExportSpecification();
-			var spec = exportSpecification.Create<SimpleObject>();
+			var spec = _specFactory.Create<SimpleObject>();
 
 			simpleObject.ExportToFile(filePath, spec);
 
-			var expected = @"1,HELLO
+			const string expected = @"1,HELLO
 2,WORLD";
 			var actual = File.ReadAllText(filePath);
 
@@ -83,15 +82,15 @@ namespace FileByter.Tests
 
 			string filePath = Path.GetTempFileName();
 
-			var fileExportSpecification = new FileExportSpecification();
+			var fileExportSpecification = new FileExportSpecificationFactory();
 			var spec = fileExportSpecification.Create<SimpleObject>(cfg =>
-																		{
-																			cfg.Exclude(x => x.StringValue1);
-																		});
+			{
+				cfg.Exclude(x => x.StringValue1); ;
+			});
 
 			simpleObject.ExportToFile(filePath, spec);
 
-			var expected = @"1
+			const string expected = @"1
 2";
 			var actual = File.ReadAllText(filePath);
 

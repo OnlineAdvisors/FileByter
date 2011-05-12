@@ -76,12 +76,13 @@ namespace FileByter
 		}
 	}
 
-	public class FileExportSpecification
+	public class FileExportSpecificationFactory
 	{
 		public FileExportSpecification<T> Create<T>()
 		{
 			return Create<T>(cfg => { });
 		}
+
 		public FileExportSpecification<T> Create<T>(Action<FileExportSpecification<T>> configuration)
 		{
 			var fileExportSpecification = new FileExportSpecification<T>();
@@ -125,5 +126,7 @@ namespace FileByter
 		{
 			_defaultTypeFormatters.Add(typeof(T), formatter);
 		}
+
 	}
+
 }
