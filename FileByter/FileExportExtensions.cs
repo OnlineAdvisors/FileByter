@@ -7,7 +7,8 @@ namespace FileByter
 	{
 		public static void ExportToFile<T>(this IEnumerable<T> items, string filePath, FileExportSpecification<T> fileExportSpecification)
 		{
-			var fileExportConfiguration = new FileExportConfiguration<T>(fileExportSpecification.Properties, fileExportSpecification.ColumnDelimeter);
+
+			var fileExportConfiguration = fileExportSpecification.CreateConfiguration();
 			var fileExporter = new FileExporter<T>(fileExportConfiguration);
 
 			using (TextWriter fileStream = new StreamWriter(filePath))

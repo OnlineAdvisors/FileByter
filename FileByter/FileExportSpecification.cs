@@ -8,13 +8,9 @@ namespace FileByter
 		private readonly PropertiesCollection<T> _properties = new PropertiesCollection<T>();
 
 		public FileExportSpecification()
-			: this(",", Environment.NewLine)
+			: this(columnDelimeter: ",",
+					rowDelimeter: Environment.NewLine)
 		{
-		}
-
-		public PropertiesCollection<T> Properties
-		{
-			get { return _properties; }
 		}
 
 		public FileExportSpecification(string columnDelimeter, string rowDelimeter)
@@ -23,11 +19,16 @@ namespace FileByter
 			RowDelimeter = rowDelimeter;
 		}
 
+		private PropertiesCollection<T> Properties
+		{
+			get { return _properties; }
+		}
+
 		public FileExportSpecification<T> Add(string propertyName, PropertyFormatter formatter)
 		{
 			// Should only add property once
 			if (Properties.ContainsPropertyName(propertyName))
-				throw new ArgumentException("The property [{0}] has been specified.".FormatWith(propertyName));
+				throw new ArgumentException("The property [{0}] has been already been specified.".FormatWith(propertyName));
 
 			var propertyReader = new PropertyReader<T>(propertyName);
 			var property = new Property<T>(propertyReader, formatter);
@@ -72,6 +73,12 @@ namespace FileByter
 			if (Properties.ContainsExcludedProperty(propertyName))
 				return true;
 			return Properties.ContainsPropertyName(propertyName);
+		}
+
+		public FileExportConfiguration<T> CreateConfiguration()
+		{
+			var fileExportConfiguration = new FileExportConfiguration<T>(Properties, ColumnDelimeter);
+			return fileExportConfiguration;
 		}
 	}
 }
