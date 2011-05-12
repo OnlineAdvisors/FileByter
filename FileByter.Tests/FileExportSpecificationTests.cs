@@ -6,10 +6,11 @@ namespace FileByter.Tests
 {
 	public class FileExportSpecificationTests
 	{
-		[Fact]
+		[Fact()]
 		public void Should_use_the_custom_formatter()
 		{
-			var fileExportSpecification = FileExportSpecification.Create<SimpleObject>(cfg =>
+			var exportSpecification = new FileExportSpecification();
+			var fileExportSpecification = exportSpecification.Create<SimpleObject>(cfg =>
 			{
 				cfg.Add(x => x.Id, v => v.ToString() + "_TEST"); ;
 			});
@@ -22,7 +23,8 @@ namespace FileByter.Tests
 		[Fact]
 		public void Should_use_the_default_formatter_of_object()
 		{
-			var fileExportSpecification = FileExportSpecification.Create<SimpleObject>();
+			var exportSpecification = new FileExportSpecification();
+			var fileExportSpecification = exportSpecification.Create<SimpleObject>();
 			fileExportSpecification.ColumnDelimeter = "	";
 
 			var simpleObject = new SimpleObject { Id = 2 };
@@ -33,9 +35,10 @@ namespace FileByter.Tests
 		[Fact]
 		public void Should_use_a_specially_configured_type_default()
 		{
-			FileExportSpecification.AddDefault<int>(value => value + "_ASDF");
+			var exportSpecification = new FileExportSpecification();
+			exportSpecification.AddDefault<int>(value => value + "_ASDF");
 
-			var fileExportSpecification = FileExportSpecification.Create<SimpleObject>();
+			var fileExportSpecification = exportSpecification.Create<SimpleObject>();
 
 			var simpleObject = new SimpleObject { Id = 2, StringValue1 = "HELLO" };
 
@@ -57,7 +60,8 @@ namespace FileByter.Tests
 
 			string filePath = Path.GetTempFileName();
 
-			var spec = FileExportSpecification.Create<SimpleObject>();
+			var exportSpecification = new FileExportSpecification();
+			var spec = exportSpecification.Create<SimpleObject>();
 
 			simpleObject.ExportToFile(filePath, spec);
 
@@ -79,7 +83,8 @@ namespace FileByter.Tests
 
 			string filePath = Path.GetTempFileName();
 
-			var spec = FileExportSpecification.Create<SimpleObject>(cfg =>
+			var fileExportSpecification = new FileExportSpecification();
+			var spec = fileExportSpecification.Create<SimpleObject>(cfg =>
 																		{
 																			cfg.Exclude(x => x.StringValue1);
 																		});

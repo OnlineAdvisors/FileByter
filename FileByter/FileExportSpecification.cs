@@ -50,7 +50,7 @@ namespace FileByter
 		{
 			if (propertyExpression == null) throw new ArgumentNullException("propertyExpression");
 			var propertyName = propertyExpression.GetMemberName();
-			this.Properties.AddExclusion(propertyName);
+			Properties.AddExclusion(propertyName);
 			return this;
 		}
 
@@ -78,11 +78,11 @@ namespace FileByter
 
 	public class FileExportSpecification
 	{
-		public static FileExportSpecification<T> Create<T>()
+		public FileExportSpecification<T> Create<T>()
 		{
 			return Create<T>(cfg => { });
 		}
-		public static FileExportSpecification<T> Create<T>(Action<FileExportSpecification<T>> configuration)
+		public FileExportSpecification<T> Create<T>(Action<FileExportSpecification<T>> configuration)
 		{
 			var fileExportSpecification = new FileExportSpecification<T>();
 			configuration(fileExportSpecification);
@@ -91,7 +91,7 @@ namespace FileByter
 			return fileExportSpecification;
 		}
 
-		private static void ConfigureRestOfProperties<T>(FileExportSpecification<T> fileExportSpecification)
+		private void ConfigureRestOfProperties<T>(FileExportSpecification<T> fileExportSpecification)
 		{
 			// fallback formatter for anything that doesn't fit int he custom, or "global default" formatters.
 			var globalDefaultFormatter = new PropertyFormatter(propertyValue =>
@@ -111,19 +111,19 @@ namespace FileByter
 				PropertyFormatter defaultPropertyFormatter = globalDefaultFormatter;
 
 				// If there's a default 
-				if (DefaultTypeFormatters.ContainsKey(propertyInfo.PropertyType))
+				if (_defaultTypeFormatters.ContainsKey(propertyInfo.PropertyType))
 				{
-					defaultPropertyFormatter = DefaultTypeFormatters[propertyInfo.PropertyType];
+					defaultPropertyFormatter = _defaultTypeFormatters[propertyInfo.PropertyType];
 				}
 
 				fileExportSpecification.Add(propertyInfo.Name, defaultPropertyFormatter);
 			}
 		}
 
-		private static readonly IDictionary<Type, PropertyFormatter> DefaultTypeFormatters = new Dictionary<Type, PropertyFormatter>();
-		public static void AddDefault<T>(PropertyFormatter formatter)
+		private readonly IDictionary<Type, PropertyFormatter> _defaultTypeFormatters = new Dictionary<Type, PropertyFormatter>();
+		public void AddDefault<T>(PropertyFormatter formatter)
 		{
-			DefaultTypeFormatters.Add(typeof(T), formatter);
+			_defaultTypeFormatters.Add(typeof(T), formatter);
 		}
 	}
 }
