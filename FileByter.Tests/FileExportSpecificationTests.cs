@@ -6,14 +6,14 @@ namespace FileByter.Tests
 {
 	public class FileExportSpecificationTests
 	{
-		private readonly FileExportSpecificationFactory _specFactory = new FileExportSpecificationFactory();
+		private readonly FileExportSpecificationFactory<SimpleObject> _specFactory = new FileExportSpecificationFactory<SimpleObject>();
 
 		[Fact]
 		public void Should_use_the_custom_formatter()
 		{
-			var fileExportSpecification = _specFactory.Create<SimpleObject>(cfg =>
+			var fileExportSpecification = _specFactory.Create(cfg =>
 			{
-				cfg.Add(x => x.Id, v => v.ToString() + "_TEST"); ;
+				cfg.AddPropertyFormatter(x => x.Id, v => v.ToString() + "_TEST"); ;
 			});
 
 			var simpleObject = new SimpleObject { Id = 2 };
@@ -24,7 +24,7 @@ namespace FileByter.Tests
 		[Fact]
 		public void Should_use_the_default_formatter_of_object()
 		{
-			var fileExportSpecification = _specFactory.Create<SimpleObject>();
+			var fileExportSpecification = _specFactory.Create();
 			fileExportSpecification.ColumnDelimeter = "	";
 
 			var simpleObject = new SimpleObject { Id = 2 };
@@ -35,10 +35,10 @@ namespace FileByter.Tests
 		[Fact]
 		public void Should_use_a_specially_configured_type_default()
 		{
-			var exportSpecification = new FileExportSpecificationFactory();
+			var exportSpecification = new FileExportSpecificationFactory<SimpleObject>();
 			exportSpecification.AddDefault<int>(value => value + "_ASDF");
 
-			var fileExportSpecification = exportSpecification.Create<SimpleObject>();
+			var fileExportSpecification = exportSpecification.Create();
 
 			var simpleObject = new SimpleObject { Id = 2, StringValue1 = "HELLO" };
 
@@ -60,10 +60,8 @@ namespace FileByter.Tests
 
 			string filePath = Path.GetTempFileName();
 
-			_specFactory
-				.Create<SimpleObject>()
-				.CreateFileExporter()
-				.ExportToFile(simpleObject, filePath);
+			var spec = _specFactory.Create();
+			_specFactory.CreateFileExporter(spec).ExportToFile(simpleObject, filePath);
 
 			const string expected = @"1,HELLO
 2,WORLD";
@@ -83,14 +81,13 @@ namespace FileByter.Tests
 
 			string filePath = Path.GetTempFileName();
 
-			var fileExportSpecification = new FileExportSpecificationFactory();
-			var spec = fileExportSpecification.Create<SimpleObject>(cfg =>
+			var fileExportSpecification = new FileExportSpecificationFactory<SimpleObject>();
+			var spec = fileExportSpecification.Create(cfg =>
 			{
 				cfg.Exclude(x => x.StringValue1); ;
 			});
 
-			spec.CreateFileExporter()
-				.ExportToFile(simpleObject, filePath);
+			_specFactory.CreateFileExporter(spec).ExportToFile(simpleObject, filePath);
 
 			const string expected = @"1
 2";

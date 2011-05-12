@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace FileByter
 {
-	public class FileExportSpecificationFactory
+	public class FileExportSpecificationFactory<T>
 	{
-		public FileExportSpecification<T> Create<T>()
+		public FileExportSpecification<T> Create()
 		{
-			return Create<T>(cfg => { });
+			return Create(cfg => { });
 		}
 
-		public FileExportSpecification<T> Create<T>(Action<FileExportSpecification<T>> configuration)
+		public FileExportSpecification<T> Create(Action<FileExportSpecification<T>> configuration)
 		{
 			var fileExportSpecification = new FileExportSpecification<T>();
 			configuration(fileExportSpecification);
@@ -44,16 +44,25 @@ namespace FileByter
 					defaultPropertyFormatter = _defaultTypeFormatters[propertyInfo.PropertyType];
 				}
 
-				fileExportSpecification.Add(propertyInfo.Name, defaultPropertyFormatter);
+				fileExportSpecification.AddPropertyFormatter(propertyInfo.Name, defaultPropertyFormatter);
 			}
 		}
 
 		private readonly IDictionary<Type, PropertyFormatter> _defaultTypeFormatters = new Dictionary<Type, PropertyFormatter>();
-		public void AddDefault<T>(PropertyFormatter formatter)
+		public void AddDefault<TProperty>(Func<TProperty, string> formatter)
 		{
-			_defaultTypeFormatters.Add(typeof(T), formatter);
+			PropertyFormatter pf = item => formatter((TProperty)item);
+			_defaultTypeFormatters.Add(typeof(TProperty), pf);
 		}
 
+		public FileExporter<T> CreateFileExporter<T>(FileExportSpecification<T> fileExportSpecification)
+		{
+			PropertiesCollection<T> properties = fileExportSpecification.Properties;
+			string columnDelimeter = fileExportSpecification.ColumnDelimeter;
+			var fileExportConfiguration = new FileExportConfiguration<T>(properties, columnDelimeter);
+			var fileExporter = new FileExporter<T>(fileExportConfiguration);
+			return fileExporter;
+		}
 	}
 
 }

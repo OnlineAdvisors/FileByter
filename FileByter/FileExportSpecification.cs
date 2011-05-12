@@ -19,12 +19,12 @@ namespace FileByter
 			RowDelimeter = rowDelimeter;
 		}
 
-		private PropertiesCollection<T> Properties
+		public PropertiesCollection<T> Properties
 		{
 			get { return _properties; }
 		}
 
-		public FileExportSpecification<T> Add(string propertyName, PropertyFormatter formatter)
+		public FileExportSpecification<T> AddPropertyFormatter(string propertyName, PropertyFormatter formatter)
 		{
 			// Should only add property once
 			if (Properties.ContainsPropertyName(propertyName))
@@ -36,14 +36,14 @@ namespace FileByter
 			return this;
 		}
 
-		public FileExportSpecification<T> Add<TProperty>(Expression<Func<T, TProperty>> propertyExpression, Func<TProperty, string> formatter)
+		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, Func<TProperty, string> formatter)
 		{
 			if (propertyExpression == null) throw new ArgumentNullException("propertyExpression");
 			if (formatter == null) throw new ArgumentNullException("formatter");
 
 			var propertyName = propertyExpression.GetMemberName();
 
-			return Add(propertyName, item => formatter((TProperty)item));
+			return AddPropertyFormatter(propertyName, item => formatter((TProperty)item));
 		}
 
 		public FileExportSpecification<T> Exclude<TProperty>(Expression<Func<T, TProperty>> propertyExpression)
@@ -73,19 +73,6 @@ namespace FileByter
 			if (Properties.ContainsExcludedProperty(propertyName))
 				return true;
 			return Properties.ContainsPropertyName(propertyName);
-		}
-
-		public FileExportConfiguration<T> CreateConfiguration()
-		{
-			var fileExportConfiguration = new FileExportConfiguration<T>(Properties, ColumnDelimeter);
-			return fileExportConfiguration;
-		}
-
-		public FileExporter<T> CreateFileExporter()
-		{
-			var fileExportConfiguration = CreateConfiguration();
-			var fileExporter = new FileExporter<T>(fileExportConfiguration);
-			return fileExporter;
 		}
 	}
 }
