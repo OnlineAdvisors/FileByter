@@ -60,9 +60,10 @@ namespace FileByter.Tests
 
 			string filePath = Path.GetTempFileName();
 
-			var spec = _specFactory.Create<SimpleObject>();
-
-			simpleObject.ExportToFile(filePath, spec);
+			_specFactory
+				.Create<SimpleObject>()
+				.CreateFileExporter()
+				.ExportToFile(simpleObject, filePath);
 
 			const string expected = @"1,HELLO
 2,WORLD";
@@ -88,7 +89,8 @@ namespace FileByter.Tests
 				cfg.Exclude(x => x.StringValue1); ;
 			});
 
-			simpleObject.ExportToFile(filePath, spec);
+			spec.CreateFileExporter()
+				.ExportToFile(simpleObject, filePath);
 
 			const string expected = @"1
 2";

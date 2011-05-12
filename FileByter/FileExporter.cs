@@ -1,21 +1,24 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace FileByter
 {
 	public class FileExporter<T>
 	{
-		private readonly FileExportConfiguration<T> _exportSpecification;
+		private readonly FileExportConfiguration<T> _fileExportConfiguration;
 
-		public FileExporter(FileExportConfiguration<T> exportSpecification)
+		public FileExporter(FileExportConfiguration<T> fileExportConfiguration)
 		{
-			_exportSpecification = exportSpecification;
+			_fileExportConfiguration = fileExportConfiguration;
 		}
 
-		public string ReadItemIntoRow(T item)
+		private string ReadItemIntoRow(T item)
 		{
 			var sb = new StringBuilder();
-			var allPropertyValues = _exportSpecification.Properties.Values.ToList();
+			var allPropertyValues = _fileExportConfiguration.Properties.Values.ToList();
 			for (var i = 0; i < allPropertyValues.Count; i++)
 			{
 				var property = allPropertyValues[i];
@@ -24,10 +27,29 @@ namespace FileByter
 				sb.Append(formattedValue);
 
 				if (i < (allPropertyValues.Count - 1))
-					sb.Append(_exportSpecification.ColumnDelimeter);
+					sb.Append(_fileExportConfiguration.ColumnDelimeter);
 			}
 
 			return sb.ToString();
+		}
+
+		public void ExportToFile(IEnumerable<T> items, string filePath)
+		{
+			using (TextWriter fileStream = new StreamWriter(filePath))
+			{
+				bool isFirstRow = true;
+				foreach (var item in items)
+				{
+					if (!isFirstRow)
+					{
+						fileStream.Write(_fileExportConfiguration.RowDelimeter);
+					}
+					isFirstRow = false;
+
+					string rowText = ReadItemIntoRow(item);
+					fileStream.Write(rowText);
+				}
+			}
 		}
 	}
 }

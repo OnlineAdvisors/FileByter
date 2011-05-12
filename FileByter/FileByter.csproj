@@ -41,7 +41,6 @@
     <Compile Include="FileExportSpecification.cs" />
     <Compile Include="HelperExtensions.cs" />
     <Compile Include="DelegateFactory.cs" />
-    <Compile Include="FileExportExtensions.cs" />
     <Compile Include="FileExportSpecificationFactory.cs" />
     <Compile Include="PropertiesCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

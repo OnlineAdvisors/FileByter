@@ -80,5 +80,12 @@ namespace FileByter
 			var fileExportConfiguration = new FileExportConfiguration<T>(Properties, ColumnDelimeter);
 			return fileExportConfiguration;
 		}
+
+		public FileExporter<T> CreateFileExporter()
+		{
+			var fileExportConfiguration = CreateConfiguration();
+			var fileExporter = new FileExporter<T>(fileExportConfiguration);
+			return fileExporter;
+		}
 	}
 }
