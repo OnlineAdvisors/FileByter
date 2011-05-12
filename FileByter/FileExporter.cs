@@ -5,14 +5,12 @@ namespace FileByter
 {
 	public class FileExporter<T>
 	{
-		private readonly FileExportSpecification<T> _exportSpecification;
+		private readonly FileExportConfiguration<T> _exportSpecification;
 
-		public FileExporter(FileExportSpecification<T> exportSpecification)
+		public FileExporter(FileExportConfiguration<T> exportSpecification)
 		{
 			_exportSpecification = exportSpecification;
 		}
-
-
 
 		public string ReadItemIntoRow(T item)
 		{
