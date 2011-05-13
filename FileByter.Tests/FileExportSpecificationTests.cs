@@ -52,7 +52,7 @@ namespace FileByter.Tests
 		[Fact]
 		public void Shoule_be_able_to_save_items_to_file()
 		{
-			var simpleObject = new List<SimpleObject>
+			var simpleObject = new []
 			{
 				new SimpleObject {Id = 1, StringValue1 = "HELLO"},
 				new SimpleObject {Id = 2, StringValue1 = "WORLD"},
@@ -73,7 +73,7 @@ namespace FileByter.Tests
 		[Fact]
 		public void Shoule_be_able_to_exclude_a_property()
 		{
-			var simpleObject = new List<SimpleObject>
+			var simpleObject = new []
 			{
 				new SimpleObject {Id = 1, StringValue1 = "HELLO"},
 				new SimpleObject {Id = 2, StringValue1 = "WORLD"},
@@ -100,6 +100,37 @@ namespace FileByter.Tests
 			public int Id { get; set; }
 			public string StringValue1 { get; set; }
 		}
+
+		public class SimpleObjectWithNullable
+		{
+			public int? Id { get; set; }
+			public string StringValue1 { get; set; }
+		}
+
+		[Fact]
+		public void Should_output_empty_items_with_delimeter_correctly()
+		{
+			var simpleObject = new[]
+			{
+				new SimpleObjectWithNullable {Id = null, StringValue1 = "HELLO"},
+				new SimpleObjectWithNullable {Id = 2, StringValue1 = "WORLD"},
+			};
+
+			string filePath = Path.GetTempFileName();
+
+			var fileExportSpecification = new FileExportSpecificationFactory<SimpleObjectWithNullable>();
+			var spec = fileExportSpecification.Create();
+
+			_specFactory.CreateFileExporter(spec).ExportToFile(simpleObject, filePath);
+
+			const string expected = @",HELLO
+2,WORLD";
+			var actual = File.ReadAllText(filePath);
+
+			actual.ShouldEqual(expected);
+
+		}
+
 	}
 
 }
