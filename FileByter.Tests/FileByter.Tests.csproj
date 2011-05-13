@@ -49,7 +49,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FileByter\FileByter.csproj">
       <Project>{DA156778-F00A-4FB9-8059-693160BEE918}</Project>
-      <Name>FileByter</Name>
+      <Name>FileByter %28SubModules\FileByter\FileByter%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
