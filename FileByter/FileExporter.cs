@@ -37,19 +37,36 @@ namespace FileByter
 		{
 			using (TextWriter fileStream = new StreamWriter(filePath))
 			{
-				bool isFirstRow = true;
-				foreach (var item in items)
-				{
-					if (!isFirstRow)
-					{
-						fileStream.Write(_fileExportConfiguration.RowDelimeter);
-					}
-					isFirstRow = false;
-
-					string rowText = ReadItemIntoRow(item);
-					fileStream.Write(rowText);
-				}
+				ExportToStream(items, fileStream);
 			}
+		}
+
+		public void ExportToStream(IEnumerable<T> items, TextWriter writer)
+		{
+			bool isFirstRow = true;
+			foreach (var item in items)
+			{
+				if (!isFirstRow)
+				{
+					writer.Write(_fileExportConfiguration.RowDelimeter);
+				}
+				isFirstRow = false;
+
+				string rowText = ReadItemIntoRow(item);
+				writer.Write(rowText);
+			}
+
+		}
+
+		public string ExportToString(IEnumerable<T> items)
+		{
+			var sb = new StringBuilder();
+			using (var sw = new StringWriter(sb))
+			{
+				ExportToStream(items, sw);
+			}
+
+			return sb.ToString();
 		}
 	}
 }

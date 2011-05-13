@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FileByter
 {
@@ -14,7 +15,7 @@ namespace FileByter
 			return _properties.ContainsKey(propertyName);
 		}
 
-		private bool IsExcluded(string propertyName)
+		public bool IsExcluded(string propertyName)
 		{
 			return _excludedProperties.Contains(propertyName);
 		}
@@ -34,6 +35,7 @@ namespace FileByter
 			if (IsExcluded(propertyName))
 				throw new InvalidOperationException("Property [{0}] was already excluded. Cannot add an inclusion rule.".FormatWith(propertyName));
 
+
 			_properties.Add(propertyName, value);
 		}
 
@@ -44,7 +46,7 @@ namespace FileByter
 
 		public IEnumerable<Property<T>> Values
 		{
-			get { return _properties.Values; }
+			get { return _properties.Values.OrderBy(x => x.Order); }
 		}
 
 		public bool ContainsExcludedProperty(string propertyName)

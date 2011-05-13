@@ -6,13 +6,15 @@
 	{
 		private readonly PropertyReader<T> _propertyReader;
 
-		public Property(PropertyReader<T> propertyReader, PropertyFormatter formatter)
+		public Property(PropertyReader<T> propertyReader, PropertyFormatter formatter, int order)
 		{
 			_propertyReader = propertyReader;
 			Formatter = formatter;
+			Order = order;
 		}
 
 		public PropertyFormatter Formatter { get; set; }
+		public int Order { get; set; }
 
 		public string GetValue(T @object)
 		{

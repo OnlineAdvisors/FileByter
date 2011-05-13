@@ -24,14 +24,14 @@ namespace FileByter
 			get { return _properties; }
 		}
 
-		public FileExportSpecification<T> AddPropertyFormatter(string propertyName, PropertyFormatter formatter)
+		public FileExportSpecification<T> AddPropertyFormatter(string propertyName, PropertyFormatter formatter, int order)
 		{
 			// Should only add property once
 			if (Properties.ContainsPropertyName(propertyName))
 				throw new ArgumentException("The property [{0}] has been already been specified.".FormatWith(propertyName));
 
 			var propertyReader = new PropertyReader<T>(propertyName);
-			var property = new Property<T>(propertyReader, formatter);
+			var property = new Property<T>(propertyReader, formatter, order);
 			Properties.AddProperty(propertyName, property);
 			return this;
 		}
@@ -43,7 +43,7 @@ namespace FileByter
 
 			var propertyName = propertyExpression.GetMemberName();
 
-			return AddPropertyFormatter(propertyName, item => formatter((TProperty)item));
+			return AddPropertyFormatter(propertyName, item => formatter((TProperty)item), 0);
 		}
 
 		public FileExportSpecification<T> Exclude<TProperty>(Expression<Func<T, TProperty>> propertyExpression)
@@ -73,6 +73,11 @@ namespace FileByter
 			if (Properties.ContainsExcludedProperty(propertyName))
 				return true;
 			return Properties.ContainsPropertyName(propertyName);
+		}
+
+		public bool IsPropertyExcluded(string propertyName)
+		{
+			return Properties.IsExcluded(propertyName);
 		}
 	}
 }

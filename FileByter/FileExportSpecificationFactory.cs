@@ -5,12 +5,12 @@ namespace FileByter
 {
 	public class FileExportSpecificationFactory<T>
 	{
-		public FileExportSpecification<T> Create()
+		public FileExportSpecification<T> CreateSpec()
 		{
-			return Create(cfg => { });
+			return CreateSpec(cfg => { });
 		}
 
-		public FileExportSpecification<T> Create(Action<FileExportSpecification<T>> configuration)
+		public FileExportSpecification<T> CreateSpec(Action<FileExportSpecification<T>> configuration)
 		{
 			var fileExportSpecification = new FileExportSpecification<T>();
 			configuration(fileExportSpecification);
@@ -19,7 +19,7 @@ namespace FileByter
 			return fileExportSpecification;
 		}
 
-		private void ConfigureRestOfProperties<T>(FileExportSpecification<T> fileExportSpecification)
+		private void ConfigureRestOfProperties(FileExportSpecification<T> fileExportSpecification)
 		{
 			// fallback formatter for anything that doesn't fit int he custom, or "global default" formatters.
 			var globalDefaultFormatter = new PropertyFormatter(propertyValue =>
@@ -30,21 +30,32 @@ namespace FileByter
 																	}
 																	return propertyValue.ToString();
 																});
+			var properties = typeof (T).GetProperties();
 
-			foreach (var propertyInfo in typeof(T).GetProperties())
+			for (int i = 0; i < properties.Length; i++)
 			{
-				if (fileExportSpecification.IsPropertyDefined(propertyInfo.Name))
-					continue;
+				var propertyInfo = properties[i];
+				var propertyName = propertyInfo.Name;
 
-				PropertyFormatter defaultPropertyFormatter = globalDefaultFormatter;
-
-				// If there's a default 
-				if (_defaultTypeFormatters.ContainsKey(propertyInfo.PropertyType))
+				if (!fileExportSpecification.IsPropertyExcluded(propertyName))
 				{
-					defaultPropertyFormatter = _defaultTypeFormatters[propertyInfo.PropertyType];
-				}
+					if (fileExportSpecification.IsPropertyDefined(propertyName))
+					{
+						fileExportSpecification[propertyName].Order = i;
+						continue;
+					}
 
-				fileExportSpecification.AddPropertyFormatter(propertyInfo.Name, defaultPropertyFormatter);
+					PropertyFormatter defaultPropertyFormatter = globalDefaultFormatter;
+
+					// If there's a default 
+					if (_defaultTypeFormatters.ContainsKey(propertyInfo.PropertyType))
+					{
+						defaultPropertyFormatter = _defaultTypeFormatters[propertyInfo.PropertyType];
+					}
+
+					fileExportSpecification.AddPropertyFormatter(propertyName, defaultPropertyFormatter, i);
+					
+				}
 			}
 		}
 
@@ -55,12 +66,12 @@ namespace FileByter
 			_defaultTypeFormatters.Add(typeof(TProperty), pf);
 		}
 
-		public FileExporter<T> CreateFileExporter<T>(FileExportSpecification<T> fileExportSpecification)
+		public FileExporter<TInput> CreateFileExporter<TInput>(FileExportSpecification<TInput> fileExportSpecification)
 		{
-			PropertiesCollection<T> properties = fileExportSpecification.Properties;
+			PropertiesCollection<TInput> properties = fileExportSpecification.Properties;
 			string columnDelimeter = fileExportSpecification.ColumnDelimeter;
-			var fileExportConfiguration = new FileExportConfiguration<T>(properties, columnDelimeter);
-			var fileExporter = new FileExporter<T>(fileExportConfiguration);
+			var fileExportConfiguration = new FileExportConfiguration<TInput>(properties, columnDelimeter);
+			var fileExporter = new FileExporter<TInput>(fileExportConfiguration);
 			return fileExporter;
 		}
 	}
