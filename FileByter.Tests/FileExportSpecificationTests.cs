@@ -7,7 +7,7 @@ namespace FileByter.Tests
 {
     public class FileExportSpecificationTests : SpecBase
     {
-        private readonly FileExportSpecificationFactory<SimpleObject> _specFactory = new FileExportSpecificationFactory<SimpleObject>();
+        private readonly FileExport<SimpleObject> _specFactory = new FileExport<SimpleObject>();
 
 		[Fact]
 		public void Should_use_the_custom_formatter()
@@ -60,7 +60,7 @@ namespace FileByter.Tests
         [Fact]
         public void Should_use_a_specially_configured_type_default()
         {
-            var exportSpecification = new FileExportSpecificationFactory<SimpleObject>();
+            var exportSpecification = new FileExport<SimpleObject>();
             exportSpecification.AddDefault<int>(value => value + "_ASDF");
 
 			var fileExportSpecification = exportSpecification.CreateSpec();
@@ -138,6 +138,25 @@ namespace FileByter.Tests
 	}
 
 
+
+		[Fact]
+		public void Should_be_able_to_exclude_all_non_specified_properties()
+		{
+			var items = new[]
+			{
+				new SimpleObjectWithNullable {Id = null, StringValue1 = "HELLO"},
+				new SimpleObjectWithNullable {Id = 2, StringValue1 = "WORLD"},
+			};
+
+			var actual = GetExportResult(items, cfg =>
+			                                    	{
+			                                    		cfg.AddPropertyFormatter(p => p.StringValue1, p=>p.ToString());
+			                                    		cfg.ExcludeTheRest();
+			                                    	});
+
+			actual.ShouldEqual(@"HELLO
+WORLD");
+		}
 	public class FileExportPropertyOrderingTests
 	{
 		public class TestOrderingObject

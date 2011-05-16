@@ -3,19 +3,30 @@ using System.Collections.Generic;
 
 namespace FileByter
 {
-	public class FileExportSpecificationFactory<T>
+	public class FileExport<T>
 	{
+		/// <summary>
+		/// Create a <seealso cref="FileExportSpecification&lt;T&gt;" /> with the default configuration.
+		/// </summary>
+		/// <returns></returns>
 		public FileExportSpecification<T> CreateSpec()
 		{
 			return CreateSpec(cfg => { });
 		}
 
+		/// <summary>
+		/// Create a <seealso cref="FileExportSpecification&lt;T&gt;" /> by giving the option for custom configuration.
+		/// </summary>
 		public FileExportSpecification<T> CreateSpec(Action<FileExportSpecification<T>> configuration)
 		{
 			var fileExportSpecification = new FileExportSpecification<T>(this);
 			configuration(fileExportSpecification);
 
-			ConfigureRestOfProperties(fileExportSpecification);
+			if (!fileExportSpecification.SkipRestOfProperties)
+			{
+				ConfigureRestOfProperties(fileExportSpecification);
+			}
+
 			return fileExportSpecification;
 		}
 
@@ -30,7 +41,7 @@ namespace FileByter
 																	}
 																	return propertyValue.ToString();
 																});
-			var properties = typeof (T).GetProperties();
+			var properties = typeof(T).GetProperties();
 
 			for (int i = 0; i < properties.Length; i++)
 			{
@@ -54,7 +65,7 @@ namespace FileByter
 					}
 
 					fileExportSpecification.AddPropertyFormatter(propertyName, defaultPropertyFormatter, i);
-					
+
 				}
 			}
 		}

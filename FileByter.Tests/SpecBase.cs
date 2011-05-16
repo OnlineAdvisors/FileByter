@@ -7,7 +7,7 @@ namespace FileByter.Tests
 	{
 		protected static string GetExportResult<T>(IEnumerable<T> items, Action<FileExportSpecification<T>> config)
 		{
-			return new FileExportSpecificationFactory<T>()
+			return new FileExport<T>()
 				.CreateSpec(config)
 				.CreateFileExporter()
 				.ExportToString(items);
