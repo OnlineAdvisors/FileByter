@@ -12,7 +12,7 @@ namespace FileByter
 
 		public FileExportSpecification<T> CreateSpec(Action<FileExportSpecification<T>> configuration)
 		{
-			var fileExportSpecification = new FileExportSpecification<T>();
+			var fileExportSpecification = new FileExportSpecification<T>(this);
 			configuration(fileExportSpecification);
 
 			ConfigureRestOfProperties(fileExportSpecification);

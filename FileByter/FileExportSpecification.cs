@@ -5,12 +5,14 @@ namespace FileByter
 {
 	public class FileExportSpecification<T>
 	{
+		private readonly FileExportSpecificationFactory<T> _fileExportSpecificationFactory;
 		private readonly PropertiesCollection<T> _properties = new PropertiesCollection<T>();
 
-		public FileExportSpecification()
+		public FileExportSpecification(FileExportSpecificationFactory<T> fileExportSpecificationFactory)
 			: this(columnDelimeter: ",",
 					rowDelimeter: Environment.NewLine)
 		{
+			_fileExportSpecificationFactory = fileExportSpecificationFactory;
 		}
 
 		public FileExportSpecification(string columnDelimeter, string rowDelimeter)
@@ -78,6 +80,11 @@ namespace FileByter
 		public bool IsPropertyExcluded(string propertyName)
 		{
 			return Properties.IsExcluded(propertyName);
+		}
+
+		public FileExporter<T> CreateFileExporter()
+		{
+			return _fileExportSpecificationFactory.CreateFileExporter(this);
 		}
 	}
 }
