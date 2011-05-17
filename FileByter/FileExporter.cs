@@ -8,9 +8,9 @@ namespace FileByter
 {
 	public class FileExporter<T>
 	{
-		private readonly FileExportConfiguration<T> _fileExportConfiguration;
+		private readonly FileExportSpecification<T> _fileExportConfiguration;
 
-		public FileExporter(FileExportConfiguration<T> fileExportConfiguration)
+		public FileExporter(FileExportSpecification<T> fileExportConfiguration)
 		{
 			_fileExportConfiguration = fileExportConfiguration;
 		}
@@ -23,7 +23,7 @@ namespace FileByter
 			{
 				var property = allPropertyValues[i];
 
-				string formattedValue = property.GetValue(item);
+				string formattedValue = property.GetFormattedValue(item);
 				sb.Append(formattedValue);
 
 				if (i < (allPropertyValues.Count - 1))
@@ -50,12 +50,38 @@ namespace FileByter
 				{
 					writer.Write(_fileExportConfiguration.RowDelimeter);
 				}
+				else
+				{
+					if (_fileExportConfiguration.IncludeHeader)
+					{
+						writer.Write(WriteTheHeader());
+						writer.Write(_fileExportConfiguration.RowDelimeter);
+					}
+				}
 				isFirstRow = false;
 
 				string rowText = ReadItemIntoRow(item);
 				writer.Write(rowText);
 			}
 
+		}
+
+		private string WriteTheHeader()
+		{
+			var sb = new StringBuilder();
+			var allPropertyValues = _fileExportConfiguration.Properties.Values.ToList();
+			for (var i = 0; i < allPropertyValues.Count; i++)
+			{
+				var property = allPropertyValues[i];
+
+				string formattedValue = property.GetFormattedHeader();
+				sb.Append(formattedValue);
+
+				if (i < (allPropertyValues.Count - 1))
+					sb.Append(_fileExportConfiguration.ColumnDelimeter);
+			}
+
+			return sb.ToString();
 		}
 
 		public string ExportToString(IEnumerable<T> items)

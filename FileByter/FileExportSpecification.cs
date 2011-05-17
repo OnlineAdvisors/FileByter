@@ -7,7 +7,8 @@ namespace FileByter
 	{
 		private readonly FileExport<T> _fileExport;
 		private readonly PropertiesCollection<T> _properties = new PropertiesCollection<T>();
-		internal bool SkipRestOfProperties;
+		private readonly HeaderFormatter _defaultHeaderFormatter = pi => pi.Name;
+		public HeaderFormatter DefaultHeaderFormatter { get { return _defaultHeaderFormatter; } }
 
 		public FileExportSpecification(FileExport<T> fileExport)
 			: this(columnDelimeter: ",",
@@ -27,26 +28,37 @@ namespace FileByter
 			get { return _properties; }
 		}
 
-		public FileExportSpecification<T> AddPropertyFormatter(string propertyName, PropertyFormatter formatter, int order)
-		{
-			// Should only add property once
-			if (Properties.ContainsPropertyName(propertyName))
-				throw new ArgumentException("The property [{0}] has been already been specified.".FormatWith(propertyName));
-
-			var propertyReader = new PropertyReader<T>(propertyName);
-			var property = new Property<T>(propertyReader, formatter, order);
-			Properties.AddProperty(propertyName, property);
-			return this;
-		}
-
-		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, Func<TProperty, string> formatter)
+		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter formatter, HeaderFormatter headerFormatter)
 		{
 			if (propertyExpression == null) throw new ArgumentNullException("propertyExpression");
 			if (formatter == null) throw new ArgumentNullException("formatter");
 
 			var propertyName = propertyExpression.GetMemberName();
 
-			return AddPropertyFormatter(propertyName, item => formatter((TProperty)item), 0);
+			if (headerFormatter == null)
+				headerFormatter = pi => pi.Name;
+
+			PropertyFormatter propertyFormatter = value => formatter((TProperty)value);
+
+			var property = new Property<T>(propertyName, propertyFormatter, headerFormatter);
+
+			return AddProperty(property);
+		}
+		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter formatter)
+		{
+			return AddPropertyFormatter(propertyExpression, formatter, null);
+		}
+
+		public FileExportSpecification<T> AddProperty(Property<T> property)
+		{
+			var propertyName = property.PropertyName;
+
+			// Should only add property once
+			if (Properties.ContainsPropertyName(propertyName))
+				throw new ArgumentException("The property [{0}] has been already been specified.".FormatWith(propertyName));
+
+			Properties.AddProperty(propertyName, property);
+			return this;
 		}
 
 		public FileExportSpecification<T> Exclude<TProperty>(Expression<Func<T, TProperty>> propertyExpression)
@@ -88,9 +100,14 @@ namespace FileByter
 			return _fileExport.CreateFileExporter(this);
 		}
 
-		public void ExcludeTheRest()
+		private bool _excludeNonConfiguredProperties;
+		internal bool SkipNonConfiguredProperties { get { return _excludeNonConfiguredProperties; } }
+		public void ExcludeNonConfiguredProperties()
 		{
-			SkipRestOfProperties = true;
+			_excludeNonConfiguredProperties = true;
+
 		}
+
+		public bool IncludeHeader { get; set; }
 	}
 }

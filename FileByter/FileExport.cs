@@ -5,6 +5,8 @@ namespace FileByter
 {
 	public class FileExport<T>
 	{
+		private readonly IDictionary<Type, PropertyFormatter> _defaultTypeFormatters = new Dictionary<Type, PropertyFormatter>();
+
 		/// <summary>
 		/// Create a <seealso cref="FileExportSpecification&lt;T&gt;" /> with the default configuration.
 		/// </summary>
@@ -22,7 +24,7 @@ namespace FileByter
 			var fileExportSpecification = new FileExportSpecification<T>(this);
 			configuration(fileExportSpecification);
 
-			if (!fileExportSpecification.SkipRestOfProperties)
+			if (!fileExportSpecification.SkipNonConfiguredProperties)
 			{
 				ConfigureRestOfProperties(fileExportSpecification);
 			}
@@ -58,19 +60,19 @@ namespace FileByter
 
 					PropertyFormatter defaultPropertyFormatter = globalDefaultFormatter;
 
-					// If there's a default 
+					// If there's a default
 					if (_defaultTypeFormatters.ContainsKey(propertyInfo.PropertyType))
 					{
 						defaultPropertyFormatter = _defaultTypeFormatters[propertyInfo.PropertyType];
 					}
 
-					fileExportSpecification.AddPropertyFormatter(propertyName, defaultPropertyFormatter, i);
+					var property = new Property<T>(propertyName, defaultPropertyFormatter, fileExportSpecification.DefaultHeaderFormatter, i);
 
+					fileExportSpecification.AddProperty(property);
 				}
 			}
 		}
 
-		private readonly IDictionary<Type, PropertyFormatter> _defaultTypeFormatters = new Dictionary<Type, PropertyFormatter>();
 		public void AddDefault<TProperty>(Func<TProperty, string> formatter)
 		{
 			PropertyFormatter pf = item => formatter((TProperty)item);
@@ -79,10 +81,7 @@ namespace FileByter
 
 		public FileExporter<TInput> CreateFileExporter<TInput>(FileExportSpecification<TInput> fileExportSpecification)
 		{
-			PropertiesCollection<TInput> properties = fileExportSpecification.Properties;
-			string columnDelimeter = fileExportSpecification.ColumnDelimeter;
-			var fileExportConfiguration = new FileExportConfiguration<TInput>(properties, columnDelimeter);
-			var fileExporter = new FileExporter<TInput>(fileExportConfiguration);
+			var fileExporter = new FileExporter<TInput>(fileExportSpecification);
 			return fileExporter;
 		}
 	}

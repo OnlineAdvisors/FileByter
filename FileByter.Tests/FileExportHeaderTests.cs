@@ -31,10 +31,11 @@ namespace FileByter.Tests
 
 			var actual = GetExportResult(items, cfg =>
 			{
-
+				cfg.IncludeHeader = true;
 			});
 
-			actual.ShouldEqual(@"1,2,3,4,5,6");
+			actual.ShouldEqual(@"Property1,Property2,Property3,Property4,Property5,Property6
+1,2,3,4,5,6");
 		}
 	}
 }

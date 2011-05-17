@@ -26,7 +26,7 @@ namespace FileByter.Tests
 
 			var simpleObject = new SimpleObject { Id = 2 };
 
-			fileExportSpecification["Id"].GetValue(simpleObject).ShouldEqual("2_TEST");
+			fileExportSpecification["Id"].GetFormattedValue(simpleObject).ShouldEqual("2_TEST");
 		}
 
 		[Fact]
@@ -42,7 +42,7 @@ namespace FileByter.Tests
 
 			var simpleObject = new SimpleObject { Id = 2 };
 
-			fileExportSpecification["Id"].GetValue(simpleObject).ShouldEqual("2");
+			fileExportSpecification["Id"].GetFormattedValue(simpleObject).ShouldEqual("2");
 		}
 
 		[Fact]
@@ -56,10 +56,10 @@ namespace FileByter.Tests
 			var simpleObject = new SimpleObject { Id = 2, StringValue1 = "HELLO" };
 
 			// Should use the "globally" configured formatter
-			fileExportSpecification["Id"].GetValue(simpleObject).ShouldEqual("2_ASDF");
+			fileExportSpecification["Id"].GetFormattedValue(simpleObject).ShouldEqual("2_ASDF");
 
 			// Should not do any special formatting
-			fileExportSpecification["StringValue1"].GetValue(simpleObject).ShouldEqual("HELLO");
+			fileExportSpecification["StringValue1"].GetFormattedValue(simpleObject).ShouldEqual("HELLO");
 		}
 
 		[Fact]
@@ -137,7 +137,7 @@ namespace FileByter.Tests
 			var actual = GetExportResult(items, cfg =>
 													{
 														cfg.AddPropertyFormatter(p => p.StringValue1, p => p.ToString());
-														cfg.ExcludeTheRest();
+														cfg.ExcludeNonConfiguredProperties();
 													});
 
 			actual.ShouldEqual(@"HELLO
