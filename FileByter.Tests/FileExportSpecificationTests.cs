@@ -5,9 +5,9 @@ using Xunit;
 
 namespace FileByter.Tests
 {
-    public class FileExportSpecificationTests : SpecBase
-    {
-        private readonly FileExport<SimpleObject> _specFactory = new FileExport<SimpleObject>();
+	public class FileExportSpecificationTests : SpecBase
+	{
+		private readonly FileExport<SimpleObject> _specFactory = new FileExport<SimpleObject>();
 
 		[Fact]
 		public void Should_use_the_custom_formatter()
@@ -23,18 +23,11 @@ namespace FileByter.Tests
 			{
 				cfg.AddPropertyFormatter(x => x.Id, v => v.ToString() + "_TEST"); ;
 			});
-        [Fact]
-        public void Should_use_the_custom_formatter()
-        {
-            var fileExportSpecification = _specFactory.CreateSpec(cfg =>
-            {
-                cfg.AddPropertyFormatter(x => x.Id, v => v.ToString() + "_TEST"); ;
-            });
 
-            var simpleObject = new SimpleObject { Id = 2 };
+			var simpleObject = new SimpleObject { Id = 2 };
 
-            fileExportSpecification["Id"].GetValue(simpleObject).ShouldEqual("2_TEST");
-        }
+			fileExportSpecification["Id"].GetValue(simpleObject).ShouldEqual("2_TEST");
+		}
 
 		[Fact]
 		public void Should_use_the_default_formatter_of_object()
@@ -46,97 +39,90 @@ namespace FileByter.Tests
 		{
 			var fileExportSpecification = _specFactory.CreateSpec();
 			fileExportSpecification.ColumnDelimeter = "	";
-        [Fact]
-        public void Should_use_the_default_formatter_of_object()
-        {
-            var fileExportSpecification = _specFactory.CreateSpec();
-            fileExportSpecification.ColumnDelimeter = "	";
 
-            var simpleObject = new SimpleObject { Id = 2 };
+			var simpleObject = new SimpleObject { Id = 2 };
 
-            fileExportSpecification["Id"].GetValue(simpleObject).ShouldEqual("2");
-        }
+			fileExportSpecification["Id"].GetValue(simpleObject).ShouldEqual("2");
+		}
 
-        [Fact]
-        public void Should_use_a_specially_configured_type_default()
-        {
-            var exportSpecification = new FileExport<SimpleObject>();
-            exportSpecification.AddDefault<int>(value => value + "_ASDF");
+		[Fact]
+		public void Should_use_a_specially_configured_type_default()
+		{
+			var exportSpecification = new FileExport<SimpleObject>();
+			exportSpecification.AddDefault<int>(value => value + "_ASDF");
 
 			var fileExportSpecification = exportSpecification.CreateSpec();
 
-            var simpleObject = new SimpleObject { Id = 2, StringValue1 = "HELLO" };
+			var simpleObject = new SimpleObject { Id = 2, StringValue1 = "HELLO" };
 
-            // Should use the "globally" configured formatter
-            fileExportSpecification["Id"].GetValue(simpleObject).ShouldEqual("2_ASDF");
+			// Should use the "globally" configured formatter
+			fileExportSpecification["Id"].GetValue(simpleObject).ShouldEqual("2_ASDF");
 
-            // Should not do any special formatting
-            fileExportSpecification["StringValue1"].GetValue(simpleObject).ShouldEqual("HELLO");
-        }
+			// Should not do any special formatting
+			fileExportSpecification["StringValue1"].GetValue(simpleObject).ShouldEqual("HELLO");
+		}
 
-        [Fact]
-        public void Shoule_be_able_to_save_items_to_file()
-        {
-            var items = new[]
+		[Fact]
+		public void Shoule_be_able_to_save_items_to_file()
+		{
+			var items = new[]
 			{
 				new SimpleObject {Id = 1, StringValue1 = "HELLO"},
 				new SimpleObject {Id = 2, StringValue1 = "WORLD"},
 			};
 
-            var actual = GetExportResult(items, cfg =>
-            {
-            });
+			var actual = GetExportResult(items, cfg =>
+			{
+			});
 
-            actual.ShouldEqual(@"1,HELLO
+			actual.ShouldEqual(@"1,HELLO
 2,WORLD");
-        }
+		}
 
-        [Fact]
-        public void Shoule_be_able_to_exclude_a_property()
-        {
-            var items = new[]
+		[Fact]
+		public void Shoule_be_able_to_exclude_a_property()
+		{
+			var items = new[]
 			{
 				new SimpleObject {Id = 1, StringValue1 = "HELLO"},
 				new SimpleObject {Id = 2, StringValue1 = "WORLD"},
 			};
 
-            var actual = GetExportResult(items, cfg =>
-            {
-                cfg.Exclude(x => x.StringValue1); ;
-            });
+			var actual = GetExportResult(items, cfg =>
+			{
+				cfg.Exclude(x => x.StringValue1); ;
+			});
 
-            actual.ShouldEqual(@"1
+			actual.ShouldEqual(@"1
 2");
 
-        }
-        public class SimpleObject
-        {
-            public int Id { get; set; }
-            public string StringValue1 { get; set; }
-        }
+		}
+		public class SimpleObject
+		{
+			public int Id { get; set; }
+			public string StringValue1 { get; set; }
+		}
 
-        public class SimpleObjectWithNullable
-        {
-            public int? Id { get; set; }
-            public string StringValue1 { get; set; }
-        }
+		public class SimpleObjectWithNullable
+		{
+			public int? Id { get; set; }
+			public string StringValue1 { get; set; }
+		}
 
-        [Fact]
-        public void Should_output_empty_items_with_delimeter_correctly()
-        {
-            var items = new[]
+		[Fact]
+		public void Should_output_empty_items_with_delimeter_correctly()
+		{
+			var items = new[]
 			{
 				new SimpleObjectWithNullable {Id = null, StringValue1 = "HELLO"},
 				new SimpleObjectWithNullable {Id = 2, StringValue1 = "WORLD"},
 			};
 
-            var actual = GetExportResult(items, cfg => { });
+			var actual = GetExportResult(items, cfg => { });
 
-            actual.ShouldEqual(@",HELLO
+			actual.ShouldEqual(@",HELLO
 2,WORLD");
-        }
-	}
-
+		}
 
 
 		[Fact]
@@ -149,10 +135,10 @@ namespace FileByter.Tests
 			};
 
 			var actual = GetExportResult(items, cfg =>
-			                                    	{
-			                                    		cfg.AddPropertyFormatter(p => p.StringValue1, p=>p.ToString());
-			                                    		cfg.ExcludeTheRest();
-			                                    	});
+													{
+														cfg.AddPropertyFormatter(p => p.StringValue1, p => p.ToString());
+														cfg.ExcludeTheRest();
+													});
 
 			actual.ShouldEqual(@"HELLO
 WORLD");

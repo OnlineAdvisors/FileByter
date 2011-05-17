@@ -39,6 +39,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileExportHeaderTests.cs" />
     <Compile Include="FileExportPropertyOrderingTests.cs" />
     <Compile Include="FileExportSpecificationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -17,7 +17,7 @@ namespace FileByter
 				// this property is "late-bound" because if this reader is never 
 				// accessed, there's no need to expose the up front reflection cost
 				return (_propertyValueReadProperty ??
-				        (_propertyValueReadProperty = DelegateFactory.Create<T>(_propertyInfo)));
+						(_propertyValueReadProperty = DelegateFactory.Create<T>(_propertyInfo)));
 			}
 		}
 
@@ -31,7 +31,7 @@ namespace FileByter
 
 			if (_propertyInfo == null)
 				throw new ArgumentException("Could not find property name [{0}] on type [{1}]."
-				                            	.FormatWith(propertyName, typeOfT.FullName));
+												.FormatWith(propertyName, typeOfT.FullName));
 		}
 
 		public object ReadValue(T @rootObject)
