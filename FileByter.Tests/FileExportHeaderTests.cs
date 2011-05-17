@@ -37,5 +37,21 @@ namespace FileByter.Tests
 			actual.ShouldEqual(@"Property1,Property2,Property3,Property4,Property5,Property6
 1,2,3,4,5,6");
 		}
+
+
+		[Fact]
+		public void Can_use_a_custom_overriden_header_formatter()
+		{
+			var items = new[] { new TestOrderingObject() };
+
+			var actual = GetExportResult(items, cfg =>
+			{
+				cfg.AddPropertyFormatter(p => p.Property3, p => p.ToString(), p => p.Name + "@@@");
+				cfg.IncludeHeader = true;
+			});
+
+			actual.ShouldEqual(@"Property1,Property2,Property3@@@,Property4,Property5,Property6
+1,2,3,4,5,6");
+		}
 	}
 }
