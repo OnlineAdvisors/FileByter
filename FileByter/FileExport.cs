@@ -73,10 +73,11 @@ namespace FileByter
 			}
 		}
 
-		public void AddDefault<TProperty>(Func<TProperty, string> formatter)
+		public FileExport<T> AddDefault<TProperty>(Func<TProperty, string> formatter)
 		{
 			PropertyFormatter pf = item => formatter((TProperty)item);
 			_defaultTypeFormatters.Add(typeof(TProperty), pf);
+			return this;
 		}
 
 		public FileExporter<TInput> CreateFileExporter<TInput>(FileExportSpecification<TInput> fileExportSpecification)
