@@ -101,6 +101,7 @@ namespace FileByter
 		}
 
 		private bool _excludeNonConfiguredProperties;
+		internal string PrePendFileWithValue { get; private set; }
 		internal bool SkipNonConfiguredProperties { get { return _excludeNonConfiguredProperties; } }
 		public void ExcludeNonConfiguredProperties()
 		{
@@ -109,5 +110,10 @@ namespace FileByter
 		}
 
 		public bool IncludeHeader { get; set; }
+
+		public void PrependFileWith(string value)
+		{
+			PrePendFileWithValue = value;
+		}
 	}
 }

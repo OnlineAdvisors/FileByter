@@ -41,9 +41,9 @@ namespace FileByter.Tests
 			var items = new[] { new TestOrderingObject() };
 
 			var actual = GetExportResult(items, cfg =>
-													{
-														cfg.AddPropertyFormatter(p => p.Property3, p => p.ToString()); ;
-													});
+			{
+				cfg.AddPropertyFormatter(p => p.Property3, p => p.ToString()); ;
+			});
 
 			actual.ShouldEqual(@"1,2,3,4,5,6");
 		}
@@ -54,13 +54,12 @@ namespace FileByter.Tests
 			var items = new[] { new TestOrderingObject() };
 
 			var actual = GetExportResult(items, cfg =>
-													{
-														cfg.AddPropertyFormatter(p => p.Property3, p => p.ToString()); ;
-														cfg.Exclude(p => p.Property2);
-													});
+			{
+				cfg.AddPropertyFormatter(p => p.Property3, p => p.ToString()); ;
+				cfg.Exclude(p => p.Property2);
+			});
 
 			actual.ShouldEqual(@"1,3,4,5,6");
 		}
-
 	}
 }

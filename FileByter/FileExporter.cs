@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -52,6 +51,15 @@ namespace FileByter
 				}
 				else
 				{
+					// Write any pre-header information
+					var prePendValue = _fileExportConfiguration.PrePendFileWithValue;
+					if (!string.IsNullOrEmpty(prePendValue))
+					{
+						writer.Write(prePendValue);
+						writer.Write(_fileExportConfiguration.RowDelimeter);
+					}
+
+					// Write the Header row
 					if (_fileExportConfiguration.IncludeHeader)
 					{
 						writer.Write(WriteTheHeader());
