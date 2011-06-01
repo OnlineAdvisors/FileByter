@@ -5,79 +5,12 @@ using System.Text;
 
 namespace FileByter
 {
-	public class FileExporter<T>
+	public static class FileExporterExtensions
 	{
-		private readonly FileExportSpecification<T> _fileExportConfiguration;
-
-		public FileExporter(FileExportSpecification<T> fileExportConfiguration)
-		{
-			_fileExportConfiguration = fileExportConfiguration;
-		}
-
-		private string ReadItemIntoRow(T item)
+		private static string WriteTheHeader<T>(FileExportSpecification<T> spec)
 		{
 			var sb = new StringBuilder();
-			var allPropertyValues = _fileExportConfiguration.Properties.Values.ToList();
-			for (var i = 0; i < allPropertyValues.Count; i++)
-			{
-				var property = allPropertyValues[i];
-
-				string formattedValue = property.GetFormattedValue(item);
-				sb.Append(formattedValue);
-
-				if (i < (allPropertyValues.Count - 1))
-					sb.Append(_fileExportConfiguration.ColumnDelimeter);
-			}
-
-			return sb.ToString();
-		}
-
-		public void ExportToFile(IEnumerable<T> items, string filePath)
-		{
-			using (TextWriter fileStream = new StreamWriter(filePath))
-			{
-				ExportToStream(items, fileStream);
-			}
-		}
-
-		public void ExportToStream(IEnumerable<T> items, TextWriter writer)
-		{
-			bool isFirstRow = true;
-			foreach (var item in items)
-			{
-				if (!isFirstRow)
-				{
-					writer.Write(_fileExportConfiguration.RowDelimeter);
-				}
-				else
-				{
-					// Write any pre-header information
-					var prePendValue = _fileExportConfiguration.PrePendFileWithValue;
-					if (!string.IsNullOrEmpty(prePendValue))
-					{
-						writer.Write(prePendValue);
-						writer.Write(_fileExportConfiguration.RowDelimeter);
-					}
-
-					// Write the Header row
-					if (_fileExportConfiguration.IncludeHeader)
-					{
-						writer.Write(WriteTheHeader());
-						writer.Write(_fileExportConfiguration.RowDelimeter);
-					}
-				}
-				isFirstRow = false;
-
-				string rowText = ReadItemIntoRow(item);
-				writer.Write(rowText);
-			}
-
-		}
-
-		private string WriteTheHeader()
-		{
-			var sb = new StringBuilder();
-			var allPropertyValues = _fileExportConfiguration.Properties.Values.ToList();
+			var allPropertyValues = spec.Properties.Values.ToList();
 			for (var i = 0; i < allPropertyValues.Count; i++)
 			{
 				var property = allPropertyValues[i];
@@ -86,21 +19,82 @@ namespace FileByter
 				sb.Append(formattedValue);
 
 				if (i < (allPropertyValues.Count - 1))
-					sb.Append(_fileExportConfiguration.ColumnDelimeter);
+					sb.Append(spec.ColumnDelimeter);
+			}
+
+			return sb.ToString();
+		}
+		private static string ReadItemIntoRow<T>(FileExportSpecification<T> spec, T item)
+		{
+			var sb = new StringBuilder();
+			var allPropertyValues = spec.Properties.Values.ToList();
+			for (var i = 0; i < allPropertyValues.Count; i++)
+			{
+				var property = allPropertyValues[i];
+
+				string formattedValue = property.GetFormattedValue(item);
+				sb.Append(formattedValue);
+
+				if (i < (allPropertyValues.Count - 1))
+					sb.Append(spec.ColumnDelimeter);
 			}
 
 			return sb.ToString();
 		}
 
-		public string ExportToString(IEnumerable<T> items)
+		public static void ExportToStream<T>(this FileExportSpecification<T> spec, IEnumerable<T> items, TextWriter writer)
+		{
+			bool isFirstRow = true;
+			foreach (var item in items)
+			{
+				if (!isFirstRow)
+				{
+					writer.Write(spec.RowDelimeter);
+				}
+				else
+				{
+					// Write any pre-header information
+					var prePendValue = spec.PrePendFileWithValue;
+					if (!string.IsNullOrEmpty(prePendValue))
+					{
+						writer.Write(prePendValue);
+						writer.Write(spec.RowDelimeter);
+					}
+
+					// Write the Header row
+					if (spec.IncludeHeader)
+					{
+						writer.Write(WriteTheHeader(spec));
+						writer.Write(spec.RowDelimeter);
+					}
+				}
+				isFirstRow = false;
+
+				string rowText = ReadItemIntoRow(spec, item);
+				writer.Write(rowText);
+			}
+
+		}
+
+
+		public static string ExportToString<T>(this FileExportSpecification<T> spec, IEnumerable<T> items)
 		{
 			var sb = new StringBuilder();
 			using (var sw = new StringWriter(sb))
 			{
-				ExportToStream(items, sw);
+				ExportToStream(spec, items, sw);
 			}
 
 			return sb.ToString();
 		}
+
+		public static void ExportToFile<T>(this FileExportSpecification<T> spec, IEnumerable<T> items, string filePath)
+		{
+			using (TextWriter fileStream = new StreamWriter(filePath))
+			{
+				ExportToStream(spec, items, fileStream);
+			}
+		}
+
 	}
 }

@@ -9,7 +9,6 @@ namespace FileByter.Tests
 		{
 			return new FileExport<T>()
 				.CreateSpec(config)
-				.CreateFileExporter()
 				.ExportToString(items);
 		}
 	}

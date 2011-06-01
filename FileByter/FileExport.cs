@@ -21,7 +21,7 @@ namespace FileByter
 		/// </summary>
 		public FileExportSpecification<T> CreateSpec(Action<FileExportSpecification<T>> configuration)
 		{
-			var fileExportSpecification = new FileExportSpecification<T>(this);
+			var fileExportSpecification = new FileExportSpecification<T>();
 			configuration(fileExportSpecification);
 
 			if (!fileExportSpecification.SkipNonConfiguredProperties)
@@ -78,12 +78,6 @@ namespace FileByter
 			PropertyFormatter pf = item => formatter((TProperty)item);
 			_defaultTypeFormatters.Add(typeof(TProperty), pf);
 			return this;
-		}
-
-		public FileExporter<TInput> CreateFileExporter<TInput>(FileExportSpecification<TInput> fileExportSpecification)
-		{
-			var fileExporter = new FileExporter<TInput>(fileExportSpecification);
-			return fileExporter;
 		}
 	}
 

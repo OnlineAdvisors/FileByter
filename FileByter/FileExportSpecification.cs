@@ -5,16 +5,14 @@ namespace FileByter
 {
 	public class FileExportSpecification<T>
 	{
-		private readonly FileExport<T> _fileExport;
 		private readonly PropertiesCollection<T> _properties = new PropertiesCollection<T>();
 		private readonly HeaderFormatter _defaultHeaderFormatter = pi => pi.Name;
 		public HeaderFormatter DefaultHeaderFormatter { get { return _defaultHeaderFormatter; } }
 
-		public FileExportSpecification(FileExport<T> fileExport)
+		public FileExportSpecification()
 			: this(columnDelimeter: ",",
 					rowDelimeter: Environment.NewLine)
 		{
-			_fileExport = fileExport;
 		}
 
 		public FileExportSpecification(string columnDelimeter, string rowDelimeter)
@@ -93,11 +91,6 @@ namespace FileByter
 		public bool IsPropertyExcluded(string propertyName)
 		{
 			return Properties.IsExcluded(propertyName);
-		}
-
-		public FileExporter<T> CreateFileExporter()
-		{
-			return _fileExport.CreateFileExporter(this);
 		}
 
 		private bool _excludeNonConfiguredProperties;
