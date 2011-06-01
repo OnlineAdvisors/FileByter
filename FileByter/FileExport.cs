@@ -5,7 +5,7 @@ namespace FileByter
 {
 	public class FileExport<T>
 	{
-		private readonly IDictionary<Type, PropertyFormatter> _defaultTypeFormatters = new Dictionary<Type, PropertyFormatter>();
+		private readonly IDictionary<Type, PropertyFormatter<T>> _defaultTypeFormatters = new Dictionary<Type, PropertyFormatter<T>>();
 
 		/// <summary>
 		/// Create a <seealso cref="FileExportSpecification&lt;T&gt;" /> with the default configuration.
@@ -35,13 +35,13 @@ namespace FileByter
 		private void ConfigureRestOfProperties(FileExportSpecification<T> fileExportSpecification)
 		{
 			// fallback formatter for anything that doesn't fit int he custom, or "global default" formatters.
-			var globalDefaultFormatter = new PropertyFormatter(propertyValue =>
+			var globalDefaultFormatter = new PropertyFormatter<T>(context =>
 																{
-																	if (propertyValue == null)
+																	if (context.ReadValue == null)
 																	{
 																		return string.Empty;
 																	}
-																	return propertyValue.ToString();
+																	return context.ReadValue.ToString();
 																});
 			var properties = typeof(T).GetProperties();
 
@@ -58,7 +58,7 @@ namespace FileByter
 						continue;
 					}
 
-					PropertyFormatter defaultPropertyFormatter = globalDefaultFormatter;
+					PropertyFormatter<T> defaultPropertyFormatter = globalDefaultFormatter;
 
 					// If there's a default
 					if (_defaultTypeFormatters.ContainsKey(propertyInfo.PropertyType))
@@ -75,7 +75,7 @@ namespace FileByter
 
 		public FileExport<T> AddDefault<TProperty>(Func<TProperty, string> formatter)
 		{
-			PropertyFormatter pf = item => formatter((TProperty)item);
+			PropertyFormatter<T> pf = (context) => formatter((TProperty)context.ReadValue);
 			_defaultTypeFormatters.Add(typeof(TProperty), pf);
 			return this;
 		}

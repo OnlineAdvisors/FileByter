@@ -26,23 +26,21 @@ namespace FileByter
 			get { return _properties; }
 		}
 
-		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter formatter, HeaderFormatter headerFormatter)
+		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter<T> propertyFormatter, HeaderFormatter headerFormatter)
 		{
 			if (propertyExpression == null) throw new ArgumentNullException("propertyExpression");
-			if (formatter == null) throw new ArgumentNullException("formatter");
+			if (propertyFormatter == null) throw new ArgumentNullException("propertyFormatter");
 
 			var propertyName = propertyExpression.GetMemberName();
 
 			if (headerFormatter == null)
 				headerFormatter = pi => pi.Name;
 
-			PropertyFormatter propertyFormatter = value => formatter((TProperty)value);
-
 			var property = new Property<T>(propertyName, propertyFormatter, headerFormatter);
 
 			return AddProperty(property);
 		}
-		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter formatter)
+		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter<T> formatter)
 		{
 			return AddPropertyFormatter(propertyExpression, formatter, null);
 		}

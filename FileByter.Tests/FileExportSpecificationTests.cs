@@ -14,7 +14,7 @@ namespace FileByter.Tests
 		{
 			var fileExportSpecification = _specFactory.CreateSpec(cfg =>
 			{
-				cfg.AddPropertyFormatter(x => x.Id, v => v.ToString() + "_TEST"); ;
+				cfg.AddPropertyFormatter(x => x.Id, context => context.ReadValue.ToString() + "_TEST"); ;
 			});
 
 			var simpleObject = new SimpleObject { Id = 2 };
@@ -126,12 +126,31 @@ namespace FileByter.Tests
 
 			var actual = GetExportResult(items, cfg =>
 													{
-														cfg.AddPropertyFormatter(p => p.StringValue1, p => p.ToString());
+														cfg.AddPropertyFormatter(p => p.StringValue1, context => context.ReadValue.ToString());
 														cfg.ExcludeNonConfiguredProperties();
 													});
 
 			actual.ShouldEqual(@"HELLO
 WORLD");
+		}
+
+		[Fact]
+		public void Should_be_able_to_apply_row_level_conditional_logic()
+		{
+			var items = new[]
+			{
+				new SimpleObjectWithNullable {Id = null, StringValue1 = "HELLO"},
+				new SimpleObjectWithNullable {Id = 2, StringValue1 = "WORLD"},
+			};
+
+			var actual = GetExportResult(items, cfg =>
+			{
+				cfg.AddPropertyFormatter(p => p.StringValue1, (context) => context.Row.Id.HasValue ? "NOTEMPTYID" : "EMPTYID");
+				cfg.ExcludeNonConfiguredProperties();
+			});
+
+			actual.ShouldEqual(@"EMPTYID
+NOTEMPTYID");
 		}
 
 

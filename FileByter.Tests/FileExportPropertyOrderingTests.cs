@@ -42,7 +42,7 @@ namespace FileByter.Tests
 
 			var actual = GetExportResult(items, cfg =>
 			{
-				cfg.AddPropertyFormatter(p => p.Property3, p => p.ToString()); ;
+				cfg.AddPropertyFormatter(p => p.Property3, context => context.ReadValue.ToString()); ;
 			});
 
 			actual.ShouldEqual(@"1,2,3,4,5,6");
@@ -55,7 +55,7 @@ namespace FileByter.Tests
 
 			var actual = GetExportResult(items, cfg =>
 			{
-				cfg.AddPropertyFormatter(p => p.Property3, p => p.ToString()); ;
+				cfg.AddPropertyFormatter(p => p.Property3, context => context.ReadValue.ToString()); ;
 				cfg.Exclude(p => p.Property2);
 			});
 

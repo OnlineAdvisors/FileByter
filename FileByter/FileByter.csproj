@@ -36,7 +36,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileExporter.cs" />
+    <Compile Include="FileExporterExtensions.cs" />
     <Compile Include="FileExportSpecification.cs" />
     <Compile Include="HelperExtensions.cs" />
     <Compile Include="DelegateFactory.cs" />
