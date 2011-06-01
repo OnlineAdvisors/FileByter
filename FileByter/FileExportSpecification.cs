@@ -93,6 +93,7 @@ namespace FileByter
 
 		private bool _excludeNonConfiguredProperties;
 		internal string PrePendFileWithValue { get; private set; }
+		internal string AppendFileWithValue { get; private set; }
 		internal bool SkipNonConfiguredProperties { get { return _excludeNonConfiguredProperties; } }
 		public void ExcludeNonConfiguredProperties()
 		{
@@ -105,6 +106,11 @@ namespace FileByter
 		public void PrependFileWith(string value)
 		{
 			PrePendFileWithValue = value;
+		}
+
+		public void AppendFileWith(string value)
+		{
+			AppendFileWithValue = value;
 		}
 	}
 }

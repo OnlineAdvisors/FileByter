@@ -53,6 +53,8 @@ namespace FileByter
 				}
 				else
 				{
+					//TODO: Not happy with the API for prepending and appending to a file
+
 					// Write any pre-header information
 					var prePendValue = spec.PrePendFileWithValue;
 					if (!string.IsNullOrEmpty(prePendValue))
@@ -74,6 +76,13 @@ namespace FileByter
 				writer.Write(rowText);
 			}
 
+			//TODO: Not happy with the API for prepending and appending to a file
+			var apendValue = spec.AppendFileWithValue;
+			if (!string.IsNullOrEmpty(apendValue))
+			{
+				writer.Write(spec.RowDelimeter);
+				writer.Write(apendValue);
+			}
 		}
 
 

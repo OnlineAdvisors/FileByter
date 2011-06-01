@@ -155,7 +155,7 @@ NOTEMPTYID");
 
 
 		[Fact]
-		public void Should_be_able_prepend_a_value_to_the_file()
+		public void Should_be_able_to_prepend_a_value_to_the_file()
 		{
 			var items = new[]
 			{
@@ -169,6 +169,24 @@ NOTEMPTYID");
 
 			actual.ShouldEqual(@"SaySomething
 1,HELLO");
+		}
+
+
+		[Fact]
+		public void Should_be_able_to_append_a_value_to_the_file()
+		{
+			var items = new[]
+			{
+				new SimpleObjectWithNullable {Id = 1, StringValue1 = "HELLO"},
+			};
+
+			var actual = GetExportResult(items, cfg =>
+			{
+				cfg.AppendFileWith("SaySomething");
+			});
+
+			actual.ShouldEqual(@"1,HELLO
+SaySomething");
 		}
 
 	}
