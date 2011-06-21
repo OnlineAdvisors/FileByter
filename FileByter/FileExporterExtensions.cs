@@ -81,11 +81,12 @@ namespace FileByter
 				writer.Write(rowText);
 			}
 
+			writer.Write(spec.RowDelimeter);
+
 			//TODO: Not happy with the API for prepending and appending to a file
 			var apendValue = spec.AppendFileWithValue;
 			if (!string.IsNullOrEmpty(apendValue))
 			{
-				writer.Write(spec.RowDelimeter);
 				writer.Write(apendValue);
 			}
 		}

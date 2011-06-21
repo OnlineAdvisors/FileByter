@@ -35,7 +35,8 @@ namespace FileByter.Tests
 			});
 
 			actual.ShouldEqual(@"Property1,Property2,Property3,Property4,Property5,Property6
-1,2,3,4,5,6");
+1,2,3,4,5,6
+");
 		}
 
 
@@ -51,7 +52,8 @@ namespace FileByter.Tests
 			});
 
 			actual.ShouldEqual(@"Property1,Property2,Property3@@@,Property4,Property5,Property6
-1,2,3,4,5,6");
+1,2,3,4,5,6
+");
 		}
 	}
 }

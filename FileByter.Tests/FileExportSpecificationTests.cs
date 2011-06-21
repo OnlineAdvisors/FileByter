@@ -65,7 +65,8 @@ namespace FileByter.Tests
 													});
 
 			actual.ShouldEqual(@"1,HELLO
-2,WORLD");
+2,WORLD
+");
 		}
 
 		[Fact]
@@ -84,7 +85,8 @@ namespace FileByter.Tests
 													});
 
 			actual.ShouldEqual(@"1
-2");
+2
+");
 		}
 
 
@@ -112,7 +114,8 @@ namespace FileByter.Tests
 			var actual = GetExportResult(items, cfg => { });
 
 			actual.ShouldEqual(@",HELLO
-2,WORLD");
+2,WORLD
+");
 		}
 
 
@@ -132,7 +135,8 @@ namespace FileByter.Tests
 													});
 
 			actual.ShouldEqual(@"HELLO
-WORLD");
+WORLD
+");
 		}
 
 		[Fact]
@@ -151,7 +155,8 @@ WORLD");
 			});
 
 			actual.ShouldEqual(@"EMPTYID
-NOTEMPTYID");
+NOTEMPTYID
+");
 		}
 
 
@@ -169,7 +174,8 @@ NOTEMPTYID");
 			});
 
 			actual.ShouldEqual(@"SaySomething
-1,HELLO");
+1,HELLO
+");
 		}
 
 
@@ -223,7 +229,8 @@ SaySomething");
 				cfg.OnDelimeterFoundInValue = (propertyName, delimeter, value) => "SomeOtherValue";
 			});
 
-			actual.ShouldEqual(@"1~SomeOtherValue");
+			actual.ShouldEqual(@"1~SomeOtherValue
+");
 		}
 	}
 }

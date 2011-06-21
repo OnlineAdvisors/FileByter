@@ -31,7 +31,8 @@ namespace FileByter.Tests
 
 			var actual = GetExportResult(items, cfg => { /*no overriding config - use defaults*/});
 
-			actual.ShouldEqual(@"1,2,3,4,5,6");
+			actual.ShouldEqual(@"1,2,3,4,5,6
+");
 		}
 
 
@@ -45,7 +46,8 @@ namespace FileByter.Tests
 				cfg.AddPropertyFormatter(p => p.Property3, context => context.ReadValue.ToString()); ;
 			});
 
-			actual.ShouldEqual(@"1,2,3,4,5,6");
+			actual.ShouldEqual(@"1,2,3,4,5,6
+");
 		}
 
 		[Fact]
@@ -59,7 +61,8 @@ namespace FileByter.Tests
 				cfg.Exclude(p => p.Property2);
 			});
 
-			actual.ShouldEqual(@"1,3,4,5,6");
+			actual.ShouldEqual(@"1,3,4,5,6
+");
 		}
 	}
 }
