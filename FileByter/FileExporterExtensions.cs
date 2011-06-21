@@ -26,6 +26,7 @@ namespace FileByter
 		}
 		private static string ReadItemIntoRow<T>(FileExportSpecification<T> spec, T item)
 		{
+			var columnDelimeter = spec.ColumnDelimeter;
 			var sb = new StringBuilder();
 			var allPropertyValues = spec.Properties.Values.ToList();
 			for (var i = 0; i < allPropertyValues.Count; i++)
@@ -33,10 +34,14 @@ namespace FileByter
 				var property = allPropertyValues[i];
 
 				string formattedValue = property.GetFormattedValue(item);
+
+				if (formattedValue.Contains(columnDelimeter))
+					formattedValue = spec.OnDelimeterFoundInValue(property.PropertyName, columnDelimeter, formattedValue);
+
 				sb.Append(formattedValue);
 
 				if (i < (allPropertyValues.Count - 1))
-					sb.Append(spec.ColumnDelimeter);
+					sb.Append(columnDelimeter);
 			}
 
 			return sb.ToString();

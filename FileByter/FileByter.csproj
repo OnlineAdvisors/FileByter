@@ -37,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileExporterExtensions.cs" />
+    <Compile Include="FileExportException.cs" />
     <Compile Include="FileExportSpecification.cs" />
     <Compile Include="HelperExtensions.cs" />
     <Compile Include="DelegateFactory.cs" />

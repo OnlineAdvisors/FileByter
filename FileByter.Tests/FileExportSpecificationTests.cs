@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using FileByter;
 using Xunit;
 
@@ -189,5 +190,40 @@ NOTEMPTYID");
 SaySomething");
 		}
 
+
+		[Fact]
+		public void When_a_value_contains_a_delimeter_then_should_throw_an_exception()
+		{
+			var items = new[]
+			{
+				new SimpleObjectWithNullable {Id = 1, StringValue1 = "HELLO~There"},
+			};
+
+			typeof(FileExportException).ShouldBeThrownBy(() =>
+			{
+				var actual = GetExportResult(items, cfg =>
+				{
+					cfg.ColumnDelimeter = "~";
+				});
+			});
+		}
+
+
+		[Fact]
+		public void When_a_value_contains_a_delimeter_is_found_should_be_able_to_provide_handler()
+		{
+			var items = new[]
+			{
+				new SimpleObjectWithNullable {Id = 1, StringValue1 = "HELLO~There"},
+			};
+
+			var actual = GetExportResult(items, cfg =>
+			{
+				cfg.ColumnDelimeter = "~";
+				cfg.OnDelimeterFoundInValue = (propertyName, delimeter, value) => "SomeOtherValue";
+			});
+
+			actual.ShouldEqual(@"1~SomeOtherValue");
+		}
 	}
 }

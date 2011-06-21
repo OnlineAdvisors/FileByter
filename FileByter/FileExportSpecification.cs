@@ -3,6 +3,8 @@ using System.Linq.Expressions;
 
 namespace FileByter
 {
+	public delegate string DelimeterFoundInValue(string propertyName, string columnDelimeter, string value);
+
 	public class FileExportSpecification<T>
 	{
 		private readonly PropertiesCollection<T> _properties = new PropertiesCollection<T>();
@@ -19,6 +21,12 @@ namespace FileByter
 		{
 			ColumnDelimeter = columnDelimeter;
 			RowDelimeter = rowDelimeter;
+			OnDelimeterFoundInValue = (string propertyName, string columnDelimeterX, string value) =>
+			{
+				throw new FileExportException
+					("Item with propertyName[{0}] and value[{1}] contained column delimeter [{2}]"
+						.FormatWith(propertyName, value, columnDelimeterX));
+			};
 		}
 
 		public PropertiesCollection<T> Properties
@@ -102,6 +110,8 @@ namespace FileByter
 		}
 
 		public bool IncludeHeader { get; set; }
+
+		public DelimeterFoundInValue OnDelimeterFoundInValue { get; set; }
 
 		public void PrependFileWith(string value)
 		{
