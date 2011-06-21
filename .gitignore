@@ -56,3 +56,5 @@ Temp/
 
 # Include the DebugReleaseImplementations folder which would be ignored by the above
 !*DebugReleaseImplementations/
+
+!NuGetBuild
