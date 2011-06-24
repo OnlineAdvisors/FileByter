@@ -6,8 +6,19 @@ namespace FileByter
 {
 	public class TypeConfiguration
 	{
+		private readonly Type _rowType;
 		private readonly PropertiesCollection _properties = new PropertiesCollection();
 		protected internal IDictionary<Type, PropertyFormatter> DefaultTypeFormatters = new Dictionary<Type, PropertyFormatter>();
+
+		public TypeConfiguration(Type rowType)
+		{
+			_rowType = rowType;
+		}
+
+		public Type RowType
+		{
+			get { return _rowType; }
+		}
 
 		public PropertiesCollection Properties { get { return _properties; } }
 
@@ -48,6 +59,11 @@ namespace FileByter
 
 	public class TypeConfiguration<T> : TypeConfiguration
 	{
+		public TypeConfiguration()
+			: base(typeof(T))
+		{
+
+		}
 		public TypeConfiguration<T> Exclude<TProperty>(Expression<Func<T, TProperty>> propertyExpression)
 		{
 			if (propertyExpression == null) throw new ArgumentNullException("propertyExpression");

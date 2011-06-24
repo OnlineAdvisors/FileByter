@@ -107,10 +107,11 @@ namespace FileByter
 			return spec;
 		}
 
-		public void AddDefault<TProperty>(Func<TProperty, string> formatter)
+		public FileExport<T> AddDefault<TProperty>(Func<TProperty, string> formatter)
 		{
 			PropertyFormatter pf = context => formatter((TProperty)context.ItemValue);
 			DefaultPropertyFormatters.Add(typeof(TProperty), pf);
+			return this;
 		}
 	}
 }
