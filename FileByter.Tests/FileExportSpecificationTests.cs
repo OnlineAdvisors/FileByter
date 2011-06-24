@@ -15,7 +15,7 @@ namespace FileByter.Tests
 		{
 			var fileExportSpecification = _specFactory.CreateSpec(cfg =>
 			{
-				cfg.AddPropertyFormatter(x => x.Id, context => context.ReadValue.ToString() + "_TEST"); ;
+				cfg.AddPropertyFormatter(x => x.Id, context => context.ItemValue.ToString() + "_TEST"); ;
 			});
 
 			var simpleObject = new SimpleObject { Id = 2 };
@@ -130,7 +130,7 @@ namespace FileByter.Tests
 
 			var actual = GetExportResult(items, cfg =>
 													{
-														cfg.AddPropertyFormatter(p => p.StringValue1, context => context.ReadValue.ToString());
+														cfg.AddPropertyFormatter(p => p.StringValue1, context => context.ItemValue.ToString());
 														cfg.ExcludeNonConfiguredProperties();
 													});
 
@@ -150,7 +150,7 @@ WORLD
 
 			var actual = GetExportResult(items, cfg =>
 			{
-				cfg.AddPropertyFormatter(p => p.StringValue1, (context) => context.Row.Id.HasValue ? "NOTEMPTYID" : "EMPTYID");
+				cfg.AddPropertyFormatter(p => p.StringValue1, (context) => context.RowObject.Cast<SimpleObjectWithNullable>().Id.HasValue ? "NOTEMPTYID" : "EMPTYID");
 				cfg.ExcludeNonConfiguredProperties();
 			});
 
@@ -251,6 +251,14 @@ SaySomething");
 			actual.ShouldEqual(@"1,HELLO There
 2,What?
 ");
+		}
+	}
+
+	public static class Extensions
+	{
+		public static T Cast<T>(this object itemToCast)
+		{
+			return (T)itemToCast;
 		}
 	}
 }

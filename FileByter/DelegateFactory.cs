@@ -8,12 +8,12 @@ namespace FileByter
 
 	internal static class DelegateFactory
 	{
-		public static LateBoundProperty Create<T>(PropertyInfo property)
+		public static LateBoundProperty Create(PropertyInfo property)
 		{
 			if (property == null)
 				throw new ArgumentNullException("property");
 
-			var method = typeof(T).GetMethod("get_" + property.Name, Type.EmptyTypes);
+			var method = property.GetGetMethod();
 
 			return Create(method);
 		}

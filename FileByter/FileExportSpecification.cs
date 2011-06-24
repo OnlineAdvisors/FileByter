@@ -34,7 +34,7 @@ namespace FileByter
 			get { return _properties; }
 		}
 
-		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter<T> propertyFormatter, HeaderFormatter headerFormatter)
+		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter propertyFormatter, HeaderFormatter headerFormatter)
 		{
 			if (propertyExpression == null) throw new ArgumentNullException("propertyExpression");
 			if (propertyFormatter == null) throw new ArgumentNullException("propertyFormatter");
@@ -48,7 +48,7 @@ namespace FileByter
 
 			return AddProperty(property);
 		}
-		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter<T> formatter)
+		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter formatter)
 		{
 			return AddPropertyFormatter(propertyExpression, formatter, null);
 		}
