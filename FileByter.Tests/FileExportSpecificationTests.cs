@@ -11,12 +11,15 @@ namespace FileByter.Tests
 		{
 			var fileExportSpecification = _specFactory.CreateSpec(cfg =>
 			{
-				cfg.AddPropertyFormatter(x => x.Id, context => context.ItemValue.ToString() + "_TEST"); ;
+				cfg.ConfigureType<SimpleObject>(typeCfg =>
+				{
+					typeCfg.AddPropertyFormatter(x => x.Id, context => context.ItemValue.ToString() + "_TEST"); ;
+				}); ;
 			});
 
 			var simpleObject = new SimpleObject { Id = 2 };
 
-			fileExportSpecification["Id"].GetFormattedValue(simpleObject).ShouldEqual("2_TEST");
+			fileExportSpecification.GetPropertiesForType<SimpleObject>()["Id"].GetFormattedValue(simpleObject).ShouldEqual("2_TEST");
 		}
 
 		[Fact]
@@ -27,7 +30,7 @@ namespace FileByter.Tests
 
 			var simpleObject = new SimpleObject { Id = 2 };
 
-			fileExportSpecification["Id"].GetFormattedValue(simpleObject).ShouldEqual("2");
+			fileExportSpecification.GetPropertiesForType<SimpleObject>()["Id"].GetFormattedValue(simpleObject).ShouldEqual("2");
 		}
 
 		[Fact]
@@ -41,10 +44,10 @@ namespace FileByter.Tests
 			var simpleObject = new SimpleObject { Id = 2, StringValue1 = "HELLO" };
 
 			// Should use the "globally" configured formatter
-			fileExportSpecification["Id"].GetFormattedValue(simpleObject).ShouldEqual("2_ASDF");
+			fileExportSpecification.GetPropertiesForType<SimpleObject>()["Id"].GetFormattedValue(simpleObject).ShouldEqual("2_ASDF");
 
 			// Should not do any special formatting
-			fileExportSpecification["StringValue1"].GetFormattedValue(simpleObject).ShouldEqual("HELLO");
+			fileExportSpecification.GetPropertiesForType<SimpleObject>()["StringValue1"].GetFormattedValue(simpleObject).ShouldEqual("HELLO");
 		}
 
 		[Fact]
@@ -69,16 +72,18 @@ namespace FileByter.Tests
 		public void Shoule_be_able_to_exclude_a_property()
 		{
 			var items = new[]
-			            	{
-			            		new SimpleObject {Id = 1, StringValue1 = "HELLO"},
-			            		new SimpleObject {Id = 2, StringValue1 = "WORLD"},
-			            	};
+			{
+				new SimpleObject {Id = 1, StringValue1 = "HELLO"},
+				new SimpleObject {Id = 2, StringValue1 = "WORLD"},
+			};
 
 			var actual = GetExportResult(items, cfg =>
-													{
-														cfg.Exclude(x => x.StringValue1);
-														;
-													});
+			{
+				cfg.ConfigureType<SimpleObject>(typeCfg =>
+				{
+					typeCfg.Exclude(x => x.StringValue1); ;
+				}); ;
+			});
 
 			actual.ShouldEqual(@"1
 2
@@ -125,10 +130,13 @@ namespace FileByter.Tests
 			};
 
 			var actual = GetExportResult(items, cfg =>
-													{
-														cfg.AddPropertyFormatter(p => p.StringValue1, context => context.ItemValue.ToString());
-														cfg.ExcludeNonConfiguredProperties();
-													});
+			{
+				cfg.ConfigureType<SimpleObjectWithNullable>(typeCfg =>
+				{
+					typeCfg.AddPropertyFormatter(p => p.StringValue1, context => context.ItemValue.ToString()); ;
+				}); ;
+				cfg.ExcludeNonConfiguredProperties();
+			});
 
 			actual.ShouldEqual(@"HELLO
 WORLD
@@ -146,7 +154,10 @@ WORLD
 
 			var actual = GetExportResult(items, cfg =>
 			{
-				cfg.AddPropertyFormatter(p => p.StringValue1, (context) => context.RowObject.Cast<SimpleObjectWithNullable>().Id.HasValue ? "NOTEMPTYID" : "EMPTYID");
+				cfg.ConfigureType<SimpleObjectWithNullable>(typeCfg =>
+				{
+					typeCfg.AddPropertyFormatter(p => p.StringValue1, (context) => context.RowObject.Cast<SimpleObjectWithNullable>().Id.HasValue ? "NOTEMPTYID" : "EMPTYID"); ;
+				}); ;
 				cfg.ExcludeNonConfiguredProperties();
 			});
 

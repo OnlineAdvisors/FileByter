@@ -35,7 +35,6 @@ namespace FileByter
 			if (IsExcluded(propertyName))
 				throw new InvalidOperationException("Property [{0}] was already excluded. Cannot add an inclusion rule.".FormatWith(propertyName));
 
-
 			_properties.Add(propertyName, value);
 		}
 

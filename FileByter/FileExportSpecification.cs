@@ -6,48 +6,86 @@ namespace FileByter
 {
 	public delegate string DelimeterFoundInValue(string propertyName, string columnDelimeter, string value);
 
-	public class FileExportSpecification
-	{
-
-	}
-
 	public class TypeConfiguration
 	{
 		private readonly PropertiesCollection _properties = new PropertiesCollection();
-		private readonly Type _rowType;
 
-		public TypeConfiguration(Type rowType)
-		{
-			_rowType = rowType;
-		}
 
 		public PropertiesCollection Properties { get { return _properties; } }
+
+
+
+		public void AddProperty(Property property)
+		{
+			var propertyName = property.PropertyName;
+
+			// Should only add property once
+			if (Properties.ContainsPropertyName(propertyName))
+				throw new ArgumentException("The property [{0}] has been already been specified.".FormatWith(propertyName));
+
+			Properties.AddProperty(propertyName, property);
+		}
 	}
 
 	public class TypeConfiguration<T> : TypeConfiguration
 	{
-		public TypeConfiguration()
-			: base(typeof(T))
+		public TypeConfiguration<T> Exclude<TProperty>(Expression<Func<T, TProperty>> propertyExpression)
 		{
+			if (propertyExpression == null) throw new ArgumentNullException("propertyExpression");
+			var propertyName = propertyExpression.GetMemberName();
+			Properties.AddExclusion(propertyName);
+			return this;
+		}
+
+
+		public TypeConfiguration<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter propertyFormatter, HeaderFormatter headerFormatter)
+		{
+			if (propertyExpression == null) throw new ArgumentNullException("propertyExpression");
+			if (propertyFormatter == null) throw new ArgumentNullException("propertyFormatter");
+
+			var propertyName = propertyExpression.GetMemberName();
+
+			if (headerFormatter == null)
+				headerFormatter = pi => pi.Name;
+
+			var property = new Property(typeof(T), propertyName, propertyFormatter, headerFormatter);
+
+			Properties.AddProperty(propertyName, property);
+
+			return this;
+		}
+		public TypeConfiguration<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter formatter)
+		{
+			return AddPropertyFormatter( propertyExpression, formatter, null);
 		}
 	}
 
-	public class FileExportSpecification<T> : FileExportSpecification
+
+	public class FileExportSpecification
 	{
-		private readonly Dictionary<Type, TypeConfiguration> _rowTypeConfigurations = new Dictionary<Type, TypeConfiguration>();
+		protected readonly Dictionary<Type, TypeConfiguration> RowTypeConfigurations = new Dictionary<Type, TypeConfiguration>();
 
 		private readonly HeaderFormatter _defaultHeaderFormatter = pi => pi.Name;
 		public HeaderFormatter DefaultHeaderFormatter { get { return _defaultHeaderFormatter; } }
+		public string ColumnDelimeter { get; set; }
+		public string RowDelimeter { get; set; }
+		public DelimeterFoundInValue OnDelimeterFoundInValue { get; set; }
 
-		public FileExportSpecification()
-			: this(columnDelimeter: ",",
-					rowDelimeter: Environment.NewLine)
-		{
-			_rowTypeConfigurations.Add(typeof(T), new TypeConfiguration(typeof(T)));
-		}
 
-		public FileExportSpecification(string columnDelimeter, string rowDelimeter)
+
+		public FileExportSpecification(IEnumerable<Type> rowTypes, string columnDelimeter, string rowDelimeter)
 		{
+			if (rowTypes == null) throw new ArgumentNullException("rowTypes");
+
+			var configType = typeof(TypeConfiguration<>);
+			foreach (var rowType in rowTypes)
+			{
+				Type makeGenericType = configType.MakeGenericType(rowType);
+				var instance = (TypeConfiguration)Activator.CreateInstance(makeGenericType);
+				RowTypeConfigurations.Add(rowType, instance);
+			}
+
+
 			ColumnDelimeter = columnDelimeter;
 			RowDelimeter = rowDelimeter;
 			OnDelimeterFoundInValue = (string propertyName, string columnDelimeterX, string value) =>
@@ -61,70 +99,33 @@ namespace FileByter
 		public PropertiesCollection GetPropertiesForType<T>()
 		{
 			//TODO: dictionary.Contains & throw if type not configured.
-			return _rowTypeConfigurations[typeof(T)].Properties;
+			return RowTypeConfigurations[typeof(T)].Properties;
 		}
 
-		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter propertyFormatter, HeaderFormatter headerFormatter)
+		private TypeConfiguration GetTypeConfiguration<T>()
 		{
-			if (propertyExpression == null) throw new ArgumentNullException("propertyExpression");
-			if (propertyFormatter == null) throw new ArgumentNullException("propertyFormatter");
-
-			var propertyName = propertyExpression.GetMemberName();
-
-			if (headerFormatter == null)
-				headerFormatter = pi => pi.Name;
-
-			var property = new Property(typeof(T), propertyName, propertyFormatter, headerFormatter);
-
-			return AddProperty(property);
-		}
-		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter formatter)
-		{
-			return AddPropertyFormatter(propertyExpression, formatter, null);
+			return RowTypeConfigurations[typeof(T)];
 		}
 
-		public FileExportSpecification<T> AddProperty(Property property)
-		{
-			var propertyName = property.PropertyName;
+		//internal Property this[string propertyName]
+		//{
+		//    get
+		//    {
+		//        if (GetPropertiesForType<T>().ContainsPropertyName(propertyName))
+		//            return GetPropertiesForType<T>()[propertyName];
 
-			// Should only add property once
-			if (GetPropertiesForType<T>().ContainsPropertyName(propertyName))
-				throw new ArgumentException("The property [{0}] has been already been specified.".FormatWith(propertyName));
+		//        throw new ArgumentException("propertyName not found [{0}]".FormatWith(propertyName));
+		//    }
+		//}
 
-			GetPropertiesForType<T>().AddProperty(propertyName, property);
-			return this;
-		}
-
-		public FileExportSpecification<T> Exclude<TProperty>(Expression<Func<T, TProperty>> propertyExpression)
-		{
-			if (propertyExpression == null) throw new ArgumentNullException("propertyExpression");
-			var propertyName = propertyExpression.GetMemberName();
-			GetPropertiesForType<T>().AddExclusion(propertyName);
-			return this;
-		}
-
-		public string ColumnDelimeter { get; set; }
-		public string RowDelimeter { get; set; }
-
-		internal Property this[string propertyName]
-		{
-			get
-			{
-				if (GetPropertiesForType<T>().ContainsPropertyName(propertyName))
-					return GetPropertiesForType<T>()[propertyName];
-
-				throw new ArgumentException("propertyName not found [{0}]".FormatWith(propertyName));
-			}
-		}
-
-		public bool IsPropertyDefined(string propertyName)
+		internal bool IsPropertyDefined<T>(string propertyName)
 		{
 			if (GetPropertiesForType<T>().ContainsExcludedProperty(propertyName))
 				return true;
 			return GetPropertiesForType<T>().ContainsPropertyName(propertyName);
 		}
 
-		public bool IsPropertyExcluded(string propertyName)
+		public bool IsPropertyExcluded<T>(string propertyName)
 		{
 			return GetPropertiesForType<T>().IsExcluded(propertyName);
 		}
@@ -141,8 +142,6 @@ namespace FileByter
 
 		public bool IncludeHeader { get; set; }
 
-		public DelimeterFoundInValue OnDelimeterFoundInValue { get; set; }
-
 		public void PrependFileWith(string value)
 		{
 			PrePendFileWithValue = value;
@@ -152,5 +151,20 @@ namespace FileByter
 		{
 			AppendFileWithValue = value;
 		}
+
+		public void ConfigureType<T>(Action<TypeConfiguration<T>> action)
+		{
+			var typeConfiguration = GetTypeConfiguration<T>();
+			action((TypeConfiguration<T>)typeConfiguration);
+		}
+	}
+
+	public class FileExportSpecification<T> : FileExportSpecification
+	{
+		public FileExportSpecification()
+			: base(new[] { typeof(T) }, ",", Environment.NewLine)
+		{
+		}
+
 	}
 }

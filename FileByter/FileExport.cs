@@ -68,11 +68,11 @@ namespace FileByter
 				var propertyInfo = properties[i];
 				var propertyName = propertyInfo.Name;
 
-				if (!fileExportSpecification.IsPropertyExcluded(propertyName))
+				if (!fileExportSpecification.IsPropertyExcluded<T>(propertyName))
 				{
-					if (fileExportSpecification.IsPropertyDefined(propertyName))
+					if (fileExportSpecification.IsPropertyDefined<T>(propertyName))
 					{
-						fileExportSpecification[propertyName].Order = i;
+						fileExportSpecification.GetPropertiesForType<T>()[propertyName].Order = i;
 						continue;
 					}
 
@@ -86,7 +86,7 @@ namespace FileByter
 
 					var property = new Property(typeof(T), propertyName, defaultPropertyFormatter, fileExportSpecification.DefaultHeaderFormatter, i);
 
-					fileExportSpecification.AddProperty(property);
+					fileExportSpecification.GetPropertiesForType<T>().AddProperty(propertyName, property);
 				}
 			}
 		}
