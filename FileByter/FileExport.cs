@@ -19,7 +19,8 @@ namespace FileByter
 
 	public class FileExport<T> : FileExport
 	{
-		public FileExport() : base(typeof(T))
+		public FileExport()
+			: base(typeof(T))
 		{
 		}
 
@@ -83,7 +84,7 @@ namespace FileByter
 						defaultPropertyFormatter = _defaultTypeFormatters[objectType][propertyInfo.PropertyType];
 					}
 
-					var property = new Property<T>(propertyName, defaultPropertyFormatter, fileExportSpecification.DefaultHeaderFormatter, i);
+					var property = new Property(typeof(T), propertyName, defaultPropertyFormatter, fileExportSpecification.DefaultHeaderFormatter, i);
 
 					fileExportSpecification.AddProperty(property);
 				}

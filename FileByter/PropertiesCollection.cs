@@ -8,7 +8,7 @@ namespace FileByter
 	{
 		private readonly HashSet<string> _excludedProperties = new HashSet<string>();
 
-		private readonly Dictionary<string, Property<T>> _properties = new Dictionary<string, Property<T>>();
+		private readonly Dictionary<string, Property> _properties = new Dictionary<string, Property>();
 
 		public bool ContainsPropertyName(string propertyName)
 		{
@@ -30,7 +30,7 @@ namespace FileByter
 					"Cannot add exclusion of property [{0}]. It has already been included explicitly.".FormatWith(propertyName));
 		}
 
-		public void AddProperty(string propertyName, Property<T> value)
+		public void AddProperty(string propertyName, Property value)
 		{
 			if (IsExcluded(propertyName))
 				throw new InvalidOperationException("Property [{0}] was already excluded. Cannot add an inclusion rule.".FormatWith(propertyName));
@@ -39,12 +39,12 @@ namespace FileByter
 			_properties.Add(propertyName, value);
 		}
 
-		public Property<T> this[string propertyName]
+		public Property this[string propertyName]
 		{
 			get { return _properties[propertyName]; }
 		}
 
-		public IEnumerable<Property<T>> Values
+		public IEnumerable<Property> Values
 		{
 			get { return _properties.Values.OrderBy(x => x.Order); }
 		}

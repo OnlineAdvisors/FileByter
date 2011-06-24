@@ -57,12 +57,4 @@ namespace FileByter
 			return HeaderFormatter(_propertyReader.PropertyInfo);
 		}
 	}
-
-	public class Property<T> : Property
-	{
-		public Property(string propertyName, PropertyFormatter formatter, HeaderFormatter headerFormatter, int order = 0)
-			:base(typeof(T), propertyName, formatter, headerFormatter, order)
-		{
-		}
-	}
 }

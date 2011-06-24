@@ -5,7 +5,12 @@ namespace FileByter
 {
 	public delegate string DelimeterFoundInValue(string propertyName, string columnDelimeter, string value);
 
-	public class FileExportSpecification<T>
+	public class FileExportSpecification
+	{
+
+	}
+
+	public class FileExportSpecification<T> : FileExportSpecification
 	{
 		private readonly PropertiesCollection<T> _properties = new PropertiesCollection<T>();
 		private readonly HeaderFormatter _defaultHeaderFormatter = pi => pi.Name;
@@ -44,7 +49,7 @@ namespace FileByter
 			if (headerFormatter == null)
 				headerFormatter = pi => pi.Name;
 
-			var property = new Property<T>(propertyName, propertyFormatter, headerFormatter);
+			var property = new Property(typeof(T), propertyName, propertyFormatter, headerFormatter);
 
 			return AddProperty(property);
 		}
@@ -53,7 +58,7 @@ namespace FileByter
 			return AddPropertyFormatter(propertyExpression, formatter, null);
 		}
 
-		public FileExportSpecification<T> AddProperty(Property<T> property)
+		public FileExportSpecification<T> AddProperty(Property property)
 		{
 			var propertyName = property.PropertyName;
 
@@ -76,7 +81,7 @@ namespace FileByter
 		public string ColumnDelimeter { get; set; }
 		public string RowDelimeter { get; set; }
 
-		public Property<T> this[string propertyName]
+		public Property this[string propertyName]
 		{
 			get
 			{
