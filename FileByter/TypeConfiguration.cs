@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace FileByter
@@ -6,6 +7,7 @@ namespace FileByter
 	public class TypeConfiguration
 	{
 		private readonly PropertiesCollection _properties = new PropertiesCollection();
+		protected internal IDictionary<Type, PropertyFormatter> DefaultTypeFormatters = new Dictionary<Type, PropertyFormatter>();
 
 		public PropertiesCollection Properties { get { return _properties; } }
 
@@ -19,8 +21,30 @@ namespace FileByter
 
 			Properties.AddProperty(propertyName, property);
 		}
-	}
 
+		public bool IsPropertyDefined(string propertyName)
+		{
+			if (Properties.ContainsExcludedProperty(propertyName))
+				return true;
+			return Properties.ContainsPropertyName(propertyName);
+		}
+
+		public bool IsPropertyExcluded(string propertyName)
+		{
+			return Properties.ContainsExcludedProperty(propertyName);
+		}
+
+		public void AddDefault(Type inputType, Func<object, string> formatter)
+		{
+			PropertyFormatter pf = context => formatter(context.ItemValue);
+			DefaultTypeFormatters.Add(inputType, pf);
+		}
+
+		public void AddDefault(Type inputType, PropertyFormatter formatter)
+		{
+			DefaultTypeFormatters.Add(inputType, formatter);
+		}
+	}
 
 	public class TypeConfiguration<T> : TypeConfiguration
 	{
@@ -49,6 +73,7 @@ namespace FileByter
 
 			return this;
 		}
+
 		public TypeConfiguration<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter formatter)
 		{
 			return AddPropertyFormatter(propertyExpression, formatter, null);

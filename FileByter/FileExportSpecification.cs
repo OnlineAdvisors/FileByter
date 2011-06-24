@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace FileByter
@@ -40,38 +41,46 @@ namespace FileByter
 
 		public PropertiesCollection GetPropertiesForType<T>()
 		{
+			return GetPropertiesForType(typeof(T));
+		}
+
+		public PropertiesCollection GetPropertiesForType(Type type)
+		{
 			//TODO: dictionary.Contains & throw if type not configured.
-			return RowTypeConfigurations[typeof(T)].Properties;
+			return RowTypeConfigurations[type].Properties;
 		}
 
-		private TypeConfiguration GetTypeConfiguration<T>()
+		internal TypeConfiguration GetTypeConfiguration<T>()
 		{
-			return RowTypeConfigurations[typeof(T)];
+			return GetTypeConfiguration(typeof(T));
 		}
 
-		internal bool IsPropertyDefined<T>(string propertyName)
+		internal TypeConfiguration GetTypeConfiguration(Type type)
 		{
-			if (GetPropertiesForType<T>().ContainsExcludedProperty(propertyName))
-				return true;
-			return GetPropertiesForType<T>().ContainsPropertyName(propertyName);
-		}
-
-		public bool IsPropertyExcluded<T>(string propertyName)
-		{
-			return GetPropertiesForType<T>().IsExcluded(propertyName);
+			return RowTypeConfigurations[type];
 		}
 
 		private bool _excludeNonConfiguredProperties;
+		private readonly IDictionary<Type, PropertyFormatter> _globalDefaultFormatters = new Dictionary<Type, PropertyFormatter>();
 		internal string PrePendFileWithValue { get; private set; }
 		internal string AppendFileWithValue { get; private set; }
 		internal bool SkipNonConfiguredProperties { get { return _excludeNonConfiguredProperties; } }
 		public void ExcludeNonConfiguredProperties()
 		{
 			_excludeNonConfiguredProperties = true;
-
 		}
 
 		public bool IncludeHeader { get; set; }
+
+		public IEnumerable<TypeConfiguration> ConfiguredTypes
+		{
+			get { return RowTypeConfigurations.Values; }
+		}
+
+		public IDictionary<Type, PropertyFormatter> DefaultPropertyFormatters
+		{
+			get { return _globalDefaultFormatters; }
+		}
 
 		public void PrependFileWith(string value)
 		{
@@ -88,5 +97,14 @@ namespace FileByter
 			var typeConfiguration = GetTypeConfiguration<T>();
 			action((TypeConfiguration<T>)typeConfiguration);
 		}
+
+		public void AddDefault<TProperty>(Func<TProperty, string> formatter)
+		{
+			PropertyFormatter pf = context => formatter((TProperty)context.ItemValue);
+			//DefaultTypeFormatters.Add(inputType, pf);
+
+			_globalDefaultFormatters.Add(typeof(TProperty), pf);
+		}
+
 	}
 }
