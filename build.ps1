@@ -1,4 +1,4 @@
-param($buildConfiguration = 'Debug')
+param($buildConfiguration = 'Release')
 
 #Copied from psake https://github.com/JamesKovacs/psake/blob/master/psake.psm1
 function Assert
