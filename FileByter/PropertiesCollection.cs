@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace FileByter
 {
-	public class PropertiesCollection<T>
+	public class PropertiesCollection
 	{
 		private readonly HashSet<string> _excludedProperties = new HashSet<string>();
 

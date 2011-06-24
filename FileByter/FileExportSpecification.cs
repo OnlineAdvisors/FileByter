@@ -12,7 +12,7 @@ namespace FileByter
 
 	public class FileExportSpecification<T> : FileExportSpecification
 	{
-		private readonly PropertiesCollection<T> _properties = new PropertiesCollection<T>();
+		private readonly PropertiesCollection _properties = new PropertiesCollection();
 		private readonly HeaderFormatter _defaultHeaderFormatter = pi => pi.Name;
 		public HeaderFormatter DefaultHeaderFormatter { get { return _defaultHeaderFormatter; } }
 
@@ -34,7 +34,7 @@ namespace FileByter
 			};
 		}
 
-		public PropertiesCollection<T> Properties
+		public PropertiesCollection Properties
 		{
 			get { return _properties; }
 		}
