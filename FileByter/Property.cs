@@ -3,26 +3,42 @@ using System.Reflection;
 
 namespace FileByter
 {
-	public delegate string PropertyFormatter<T>(PropertyFormatterContext<T> propertyFormatterContext);
-	public delegate string HeaderFormatter(PropertyInfo propertyInfo);
-
-	public class PropertyFormatterContext<T>
+	public delegate string PropertyFormatter(PropertyFormatterContext propertyFormatterContext);
+	public class PropertyFormatterContext
 	{
-		private readonly T _row;
+		protected readonly object RowItem;
 		private readonly object _readValue;
 
-		public PropertyFormatterContext(T row, object readValue)
+		public PropertyFormatterContext(object row, object readValue)
 		{
-			_row = row;
+			RowItem = row;
 			_readValue = readValue;
 		}
 
 		public object ReadValue { get { return _readValue; } }
 
-		public T Row { get { return _row; } }
+		public object Row { get { return RowItem; } }
 	}
 
-	public class Property<T>
+	public delegate string PropertyFormatter<T>(PropertyFormatterContext<T> propertyFormatterContext);
+	public delegate string HeaderFormatter(PropertyInfo propertyInfo);
+
+	public class PropertyFormatterContext<T> : PropertyFormatterContext
+	{
+		public PropertyFormatterContext(T row, object readValue)
+			: base(row, readValue)
+		{
+		}
+
+		public new T Row { get { return (T)RowItem; } }
+	}
+
+	public class Property
+	{
+		
+	}
+
+	public class Property<T> : Property
 	{
 		private readonly PropertyReader<T> _propertyReader;
 

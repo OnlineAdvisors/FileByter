@@ -231,6 +231,26 @@ SaySomething");
 
 			actual.ShouldEqual(@"1~SomeOtherValue
 ");
+
+		}
+
+
+		[Fact(Skip = "TODO")]
+		public void Should_be_able_to_export_rows_of_different_types()
+		{
+			var items = new object[]
+			{
+				new SimpleObjectWithNullable {Id = 1, StringValue1 = "HELLO There"},
+				new SimpleObject{Id=2,StringValue1 = "What?"}
+			};
+
+			var actual = GetExportResult(items, cfg =>
+			{
+			});
+
+			actual.ShouldEqual(@"1,HELLO There
+2,What?
+");
 		}
 	}
 }

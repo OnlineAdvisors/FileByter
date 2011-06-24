@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FileByter
 {
-	public class FileExport<T>
+	public class FileExport
+	{
+
+	}
+	public class FileExport<T> : FileExport
 	{
 		private readonly IDictionary<Type, PropertyFormatter<T>> _defaultTypeFormatters = new Dictionary<Type, PropertyFormatter<T>>();
 
