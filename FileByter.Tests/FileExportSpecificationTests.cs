@@ -248,7 +248,9 @@ SaySomething");
 			var items = new object[]
 			{
 				new SimpleObjectWithNullable {Id = 1, StringValue1 = "HELLO There"},
-				new SimpleObject{Id=2,StringValue1 = "What?"}
+				new SimpleObject{Id=2,StringValue1 = "What?"},
+				new SimpleObjectWithNullable {Id = 3, StringValue1 = "HELLO There"},
+				new SimpleObject{Id=4,StringValue1 = "What?"},
 			};
 
 			var actual = GetExportResult(items, cfg =>
@@ -257,6 +259,8 @@ SaySomething");
 
 			actual.ShouldEqual(@"1,HELLO There
 2,What?
+3,HELLO There
+4,What?
 ");
 		}
 	}
