@@ -47,7 +47,11 @@ namespace FileByter.Tests
 
 			var actual = GetExportResult(items, cfg =>
 			{
-				cfg.AddPropertyFormatter(p => p.Property3, context => context.ReadValue.ToString(), p => p.Name + "@@@");
+				cfg.ConfigureType<TestOrderingObject>(typeCfg =>
+				{
+					typeCfg.AddPropertyFormatter(p => p.Property3, context => context.ItemValue.ToString(), p => p.Name + "@@@"); ;
+				});
+
 				cfg.IncludeHeader = true;
 			});
 

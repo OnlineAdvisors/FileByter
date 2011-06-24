@@ -3,82 +3,115 @@ using System.Collections.Generic;
 
 namespace FileByter
 {
-	public class FileExport<T>
+	public class FileExport
 	{
-		private readonly IDictionary<Type, PropertyFormatter<T>> _defaultTypeFormatters = new Dictionary<Type, PropertyFormatter<T>>();
+		protected readonly Dictionary<Type, PropertyFormatter> DefaultPropertyFormatters = new Dictionary<Type, PropertyFormatter>();
 
-		/// <summary>
-		/// Create a <seealso cref="FileExportSpecification&lt;T&gt;" /> with the default configuration.
-		/// </summary>
-		/// <returns></returns>
-		public FileExportSpecification<T> CreateSpec()
+		public FileExportSpecification CreateSpec(IEnumerable<Type> supportedTypes, Action<FileExportSpecification> configuration)
 		{
-			return CreateSpec(cfg => { });
-		}
-
-		/// <summary>
-		/// Create a <seealso cref="FileExportSpecification&lt;T&gt;" /> by giving the option for custom configuration.
-		/// </summary>
-		public FileExportSpecification<T> CreateSpec(Action<FileExportSpecification<T>> configuration)
-		{
-			var fileExportSpecification = new FileExportSpecification<T>();
+			var fileExportSpecification = new FileExportSpecification(supportedTypes, ",", Environment.NewLine);
 			configuration(fileExportSpecification);
 
-			if (!fileExportSpecification.SkipNonConfiguredProperties)
+			foreach (var supportedType in supportedTypes)
 			{
-				ConfigureRestOfProperties(fileExportSpecification);
+				if (!fileExportSpecification.SkipNonConfiguredProperties)
+				{
+					ConfigureRestOfProperties(supportedType, fileExportSpecification);
+				}
 			}
-
 			return fileExportSpecification;
 		}
 
-		private void ConfigureRestOfProperties(FileExportSpecification<T> fileExportSpecification)
+		private void ConfigureRestOfProperties(Type objectType, FileExportSpecification fileExportSpecification)
 		{
 			// fallback formatter for anything that doesn't fit int he custom, or "global default" formatters.
-			var globalDefaultFormatter = new PropertyFormatter<T>(context =>
+			var globalDefaultFormatter = new PropertyFormatter(context =>
 																{
-																	if (context.ReadValue == null)
+																	if (context.ItemValue == null)
 																	{
 																		return string.Empty;
 																	}
-																	return context.ReadValue.ToString();
+																	return context.ItemValue.ToString();
 																});
-			var properties = typeof(T).GetProperties();
+			var properties = objectType.GetProperties();
 
 			for (int i = 0; i < properties.Length; i++)
 			{
 				var propertyInfo = properties[i];
 				var propertyName = propertyInfo.Name;
 
-				if (!fileExportSpecification.IsPropertyExcluded(propertyName))
+				TypeConfiguration props = fileExportSpecification.GetTypeConfiguration(objectType);
+
+				if (!props.IsPropertyExcluded(propertyName))
 				{
-					if (fileExportSpecification.IsPropertyDefined(propertyName))
+					if (props.IsPropertyDefined(propertyName))
 					{
-						fileExportSpecification[propertyName].Order = i;
+						props.Properties[propertyName].Order = i;
 						continue;
 					}
 
-					PropertyFormatter<T> defaultPropertyFormatter = globalDefaultFormatter;
+					var propertyType = propertyInfo.PropertyType;
 
-					// If there's a default
-					if (_defaultTypeFormatters.ContainsKey(propertyInfo.PropertyType))
+					PropertyFormatter defaultPropertyFormatter = globalDefaultFormatter;
+
+					if (DefaultPropertyFormatters.ContainsKey(propertyType))
 					{
-						defaultPropertyFormatter = _defaultTypeFormatters[propertyInfo.PropertyType];
+						defaultPropertyFormatter = DefaultPropertyFormatters[propertyType];
 					}
 
-					var property = new Property<T>(propertyName, defaultPropertyFormatter, fileExportSpecification.DefaultHeaderFormatter, i);
+					if (fileExportSpecification.DefaultPropertyFormatters.ContainsKey(propertyType))
+					{
+						defaultPropertyFormatter = fileExportSpecification.DefaultPropertyFormatters[propertyType];
+					}
 
-					fileExportSpecification.AddProperty(property);
+					// If there's a default
+					if (props.DefaultTypeFormatters.ContainsKey(propertyType))
+					{
+						defaultPropertyFormatter = props.DefaultTypeFormatters[propertyType];
+					}
+
+					var property = new Property(objectType, propertyName, defaultPropertyFormatter, fileExportSpecification.DefaultHeaderFormatter, i);
+
+					props.AddProperty(property);
 				}
 			}
+		}
+	}
+
+
+	public class FileExport<T> : FileExport
+	{
+		public FileExportSpecification CreateSpec()
+		{
+			return this.CreateSpec(cfg => { });
+		}
+
+		public FileExportSpecification CreateSpec(Action<FileExportSpecification> configuration)
+		{
+			var spec = CreateSpec(new[] { typeof(T) }, configuration);
+			foreach (var configuredType in spec.ConfiguredTypes)
+			{
+				foreach (var localItem in spec.DefaultPropertyFormatters)
+				{
+					configuredType.AddDefault(localItem.Key, localItem.Value);
+				}
+
+				foreach (var rowTypeConfiguration in DefaultPropertyFormatters)
+				{
+					if (!configuredType.DefaultTypeFormatters.Keys.Contains(rowTypeConfiguration.Key))
+					{
+						configuredType.AddDefault(rowTypeConfiguration.Key, rowTypeConfiguration.Value);
+					}
+				}
+			}
+			return spec;
 		}
 
 		public FileExport<T> AddDefault<TProperty>(Func<TProperty, string> formatter)
 		{
-			PropertyFormatter<T> pf = (context) => formatter((TProperty)context.ReadValue);
-			_defaultTypeFormatters.Add(typeof(TProperty), pf);
+			PropertyFormatter pf = context => formatter((TProperty)context.ItemValue);
+			DefaultPropertyFormatters.Add(typeof(TProperty), pf);
 			return this;
 		}
 	}
-
 }

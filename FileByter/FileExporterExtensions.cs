@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,10 +9,10 @@ namespace FileByter
 {
 	public static class FileExporterExtensions
 	{
-		private static string WriteTheHeader<T>(FileExportSpecification<T> spec)
+		private static string WriteTheHeader(Type type, FileExportSpecification spec)
 		{
 			var sb = new StringBuilder();
-			var allPropertyValues = spec.Properties.Values.ToList();
+			var allPropertyValues = spec.GetPropertiesForType(type).Values.ToList();
 			for (var i = 0; i < allPropertyValues.Count; i++)
 			{
 				var property = allPropertyValues[i];
@@ -24,11 +26,11 @@ namespace FileByter
 
 			return sb.ToString();
 		}
-		private static string ReadItemIntoRow<T>(FileExportSpecification<T> spec, T item)
+		private static string ReadItemIntoRow(FileExportSpecification spec, object item)
 		{
 			var columnDelimeter = spec.ColumnDelimeter;
 			var sb = new StringBuilder();
-			var allPropertyValues = spec.Properties.Values.ToList();
+			var allPropertyValues = spec.GetPropertiesForType(item.GetType()).Values.ToList();
 			for (var i = 0; i < allPropertyValues.Count; i++)
 			{
 				var property = allPropertyValues[i];
@@ -47,10 +49,10 @@ namespace FileByter
 			return sb.ToString();
 		}
 
-		public static void ExportToStream<T>(this FileExportSpecification<T> spec, IEnumerable<T> items, TextWriter writer)
+		public static void ExportToStream(this FileExportSpecification spec, IEnumerable items, TextWriter writer)
 		{
 			bool isFirstRow = true;
-			foreach (var item in items)
+			foreach (object item in items)
 			{
 				if (!isFirstRow)
 				{
@@ -71,7 +73,7 @@ namespace FileByter
 					// Write the Header row
 					if (spec.IncludeHeader)
 					{
-						writer.Write(WriteTheHeader(spec));
+						writer.Write(WriteTheHeader(item.GetType(), spec));
 						writer.Write(spec.RowDelimeter);
 					}
 				}
@@ -92,7 +94,7 @@ namespace FileByter
 		}
 
 
-		public static string ExportToString<T>(this FileExportSpecification<T> spec, IEnumerable<T> items)
+		public static string ExportToString(this FileExportSpecification spec, IEnumerable items)
 		{
 			var sb = new StringBuilder();
 			using (var sw = new StringWriter(sb))
@@ -103,7 +105,7 @@ namespace FileByter
 			return sb.ToString();
 		}
 
-		public static void ExportToFile<T>(this FileExportSpecification<T> spec, IEnumerable<T> items, string filePath)
+		public static void ExportToFile<T>(this FileExportSpecification spec, IEnumerable<T> items, string filePath)
 		{
 			using (TextWriter fileStream = new StreamWriter(filePath))
 			{

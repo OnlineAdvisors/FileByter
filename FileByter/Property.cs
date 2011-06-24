@@ -3,37 +3,38 @@ using System.Reflection;
 
 namespace FileByter
 {
-	public delegate string PropertyFormatter<T>(PropertyFormatterContext<T> propertyFormatterContext);
+	public delegate string PropertyFormatter(PropertyFormatterContext propertyFormatterContext);
 	public delegate string HeaderFormatter(PropertyInfo propertyInfo);
 
-	public class PropertyFormatterContext<T>
-	{
-		private readonly T _row;
-		private readonly object _readValue;
 
-		public PropertyFormatterContext(T row, object readValue)
+	public class PropertyFormatterContext
+	{
+		protected readonly object RowObjectItem;
+		private readonly object _itemValue;
+
+		public PropertyFormatterContext(object rowObject, object itemValue)
 		{
-			_row = row;
-			_readValue = readValue;
+			RowObjectItem = rowObject;
+			_itemValue = itemValue;
 		}
 
-		public object ReadValue { get { return _readValue; } }
+		public object ItemValue { get { return _itemValue; } }
 
-		public T Row { get { return _row; } }
+		public object RowObject { get { return RowObjectItem; } }
 	}
 
-	public class Property<T>
+	public class Property
 	{
-		private readonly PropertyReader<T> _propertyReader;
+		private readonly PropertyReader _propertyReader;
 
-		public Property(string propertyName, PropertyFormatter<T> formatter, HeaderFormatter headerFormatter, int order = 0)
+		public Property(Type objectType, string propertyName, PropertyFormatter formatter, HeaderFormatter headerFormatter, int order = 0)
 		{
 			if (propertyName == null) throw new ArgumentNullException("propertyName");
 			if (formatter == null) throw new ArgumentNullException("formatter");
 			if (headerFormatter == null) throw new ArgumentNullException("headerFormatter");
 
 			PropertyName = propertyName;
-			_propertyReader = new PropertyReader<T>(propertyName);
+			_propertyReader = new PropertyReader(objectType, propertyName);
 			HeaderFormatter = headerFormatter;
 			ValueFormatter = formatter;
 			Order = order;
@@ -41,13 +42,13 @@ namespace FileByter
 
 		public string PropertyName { get; private set; }
 		public HeaderFormatter HeaderFormatter { get; set; }
-		public PropertyFormatter<T> ValueFormatter { get; set; }
+		public PropertyFormatter ValueFormatter { get; set; }
 		public int Order { get; set; }
 
-		public string GetFormattedValue(T @object)
+		public string GetFormattedValue(object @object)
 		{
 			object originalValueOfProperty = _propertyReader.ReadValue(@object);
-			var context = new PropertyFormatterContext<T>(@object, originalValueOfProperty);
+			var context = new PropertyFormatterContext(@object, originalValueOfProperty);
 			return ValueFormatter(context);
 		}
 
