@@ -242,7 +242,7 @@ SaySomething");
 		}
 
 
-		[Fact(Skip = "TODO")]
+		[Fact]
 		public void Should_be_able_to_export_rows_of_different_types()
 		{
 			var items = new object[]

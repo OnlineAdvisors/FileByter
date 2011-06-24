@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FileByter.Tests
 {
@@ -11,5 +12,15 @@ namespace FileByter.Tests
 				.CreateSpec(config)
 				.ExportToString(items);
 		}
+
+		protected static string GetExportResult(IEnumerable<object> items, Action<FileExportSpecification> config)
+		{
+			var distinctTypes = items.Select(s => s.GetType()).Distinct();
+
+			return new FileExport()
+				.CreateSpec(distinctTypes, config)
+				.ExportToString(items);
+		}
+
 	}
 }
