@@ -7,7 +7,7 @@ namespace FileByter
 {
 	public static class FileExporterExtensions
 	{
-		private static string WriteTheHeader<T>(FileExportSpecification<T> spec)
+		private static string WriteTheHeader<T>(FileExportSpecification spec)
 		{
 			var sb = new StringBuilder();
 			var allPropertyValues = spec.GetPropertiesForType<T>().Values.ToList();
@@ -24,7 +24,7 @@ namespace FileByter
 
 			return sb.ToString();
 		}
-		private static string ReadItemIntoRow<T>(FileExportSpecification<T> spec, T item)
+		private static string ReadItemIntoRow<T>(FileExportSpecification spec, T item)
 		{
 			var columnDelimeter = spec.ColumnDelimeter;
 			var sb = new StringBuilder();
@@ -47,10 +47,10 @@ namespace FileByter
 			return sb.ToString();
 		}
 
-		public static void ExportToStream<T>(this FileExportSpecification<T> spec, IEnumerable<T> items, TextWriter writer)
+		public static void ExportToStream<T>(this FileExportSpecification spec, IEnumerable<T> items, TextWriter writer)
 		{
 			bool isFirstRow = true;
-			foreach (var item in items)
+			foreach (T item in items)
 			{
 				if (!isFirstRow)
 				{
@@ -71,7 +71,7 @@ namespace FileByter
 					// Write the Header row
 					if (spec.IncludeHeader)
 					{
-						writer.Write(WriteTheHeader(spec));
+						writer.Write(WriteTheHeader<T>(spec));
 						writer.Write(spec.RowDelimeter);
 					}
 				}
@@ -92,7 +92,7 @@ namespace FileByter
 		}
 
 
-		public static string ExportToString<T>(this FileExportSpecification<T> spec, IEnumerable<T> items)
+		public static string ExportToString<T>(this FileExportSpecification spec, IEnumerable<T> items)
 		{
 			var sb = new StringBuilder();
 			using (var sw = new StringWriter(sb))
@@ -103,7 +103,7 @@ namespace FileByter
 			return sb.ToString();
 		}
 
-		public static void ExportToFile<T>(this FileExportSpecification<T> spec, IEnumerable<T> items, string filePath)
+		public static void ExportToFile<T>(this FileExportSpecification spec, IEnumerable<T> items, string filePath)
 		{
 			using (TextWriter fileStream = new StreamWriter(filePath))
 			{

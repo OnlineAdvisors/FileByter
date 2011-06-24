@@ -10,10 +10,7 @@ namespace FileByter
 	{
 		private readonly PropertiesCollection _properties = new PropertiesCollection();
 
-
 		public PropertiesCollection Properties { get { return _properties; } }
-
-
 
 		public void AddProperty(Property property)
 		{
@@ -56,7 +53,7 @@ namespace FileByter
 		}
 		public TypeConfiguration<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter formatter)
 		{
-			return AddPropertyFormatter( propertyExpression, formatter, null);
+			return AddPropertyFormatter(propertyExpression, formatter, null);
 		}
 	}
 
@@ -70,8 +67,6 @@ namespace FileByter
 		public string ColumnDelimeter { get; set; }
 		public string RowDelimeter { get; set; }
 		public DelimeterFoundInValue OnDelimeterFoundInValue { get; set; }
-
-
 
 		public FileExportSpecification(IEnumerable<Type> rowTypes, string columnDelimeter, string rowDelimeter)
 		{
@@ -106,17 +101,6 @@ namespace FileByter
 		{
 			return RowTypeConfigurations[typeof(T)];
 		}
-
-		//internal Property this[string propertyName]
-		//{
-		//    get
-		//    {
-		//        if (GetPropertiesForType<T>().ContainsPropertyName(propertyName))
-		//            return GetPropertiesForType<T>()[propertyName];
-
-		//        throw new ArgumentException("propertyName not found [{0}]".FormatWith(propertyName));
-		//    }
-		//}
 
 		internal bool IsPropertyDefined<T>(string propertyName)
 		{
@@ -157,14 +141,5 @@ namespace FileByter
 			var typeConfiguration = GetTypeConfiguration<T>();
 			action((TypeConfiguration<T>)typeConfiguration);
 		}
-	}
-
-	public class FileExportSpecification<T> : FileExportSpecification
-	{
-		public FileExportSpecification()
-			: base(new[] { typeof(T) }, ",", Environment.NewLine)
-		{
-		}
-
 	}
 }

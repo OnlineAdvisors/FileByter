@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FileByter
 {
@@ -28,7 +27,7 @@ namespace FileByter
 		/// Create a <seealso cref="FileExportSpecification&lt;T&gt;" /> with the default configuration.
 		/// </summary>
 		/// <returns></returns>
-		public FileExportSpecification<T> CreateSpec()
+		public FileExportSpecification CreateSpec()
 		{
 			return CreateSpec(cfg => { });
 		}
@@ -36,9 +35,9 @@ namespace FileByter
 		/// <summary>
 		/// Create a <seealso cref="FileExportSpecification&lt;T&gt;" /> by giving the option for custom configuration.
 		/// </summary>
-		public FileExportSpecification<T> CreateSpec(Action<FileExportSpecification<T>> configuration)
+		public FileExportSpecification CreateSpec(Action<FileExportSpecification> configuration)
 		{
-			var fileExportSpecification = new FileExportSpecification<T>();
+			var fileExportSpecification = new FileExportSpecification(new[] { typeof(T) }, ",", Environment.NewLine);
 			configuration(fileExportSpecification);
 
 			if (!fileExportSpecification.SkipNonConfiguredProperties)
@@ -49,7 +48,7 @@ namespace FileByter
 			return fileExportSpecification;
 		}
 
-		private void ConfigureRestOfProperties(FileExportSpecification<T> fileExportSpecification)
+		private void ConfigureRestOfProperties(FileExportSpecification fileExportSpecification)
 		{
 			// fallback formatter for anything that doesn't fit int he custom, or "global default" formatters.
 			var globalDefaultFormatter = new PropertyFormatter(context =>

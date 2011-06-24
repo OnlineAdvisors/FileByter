@@ -5,7 +5,7 @@ namespace FileByter.Tests
 {
 	public class SpecBase
 	{
-		protected static string GetExportResult<T>(IEnumerable<T> items, Action<FileExportSpecification<T>> config)
+		protected static string GetExportResult<T>(IEnumerable<T> items, Action<FileExportSpecification> config)
 		{
 			return new FileExport<T>()
 				.CreateSpec(config)
