@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using FileByter;
-using Xunit;
+﻿using Xunit;
 
 namespace FileByter.Tests
 {

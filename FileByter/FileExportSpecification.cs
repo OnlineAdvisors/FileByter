@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace FileByter
@@ -10,9 +11,31 @@ namespace FileByter
 
 	}
 
-	public class FileExportSpecification<T> : FileExportSpecification
+	public class TypeConfiguration
 	{
 		private readonly PropertiesCollection _properties = new PropertiesCollection();
+		private readonly Type _rowType;
+
+		public TypeConfiguration(Type rowType)
+		{
+			_rowType = rowType;
+		}
+
+		public PropertiesCollection Properties { get { return _properties; } }
+	}
+
+	public class TypeConfiguration<T> : TypeConfiguration
+	{
+		public TypeConfiguration()
+			: base(typeof(T))
+		{
+		}
+	}
+
+	public class FileExportSpecification<T> : FileExportSpecification
+	{
+		private readonly Dictionary<Type, TypeConfiguration> _rowTypeConfigurations = new Dictionary<Type, TypeConfiguration>();
+
 		private readonly HeaderFormatter _defaultHeaderFormatter = pi => pi.Name;
 		public HeaderFormatter DefaultHeaderFormatter { get { return _defaultHeaderFormatter; } }
 
@@ -20,6 +43,7 @@ namespace FileByter
 			: this(columnDelimeter: ",",
 					rowDelimeter: Environment.NewLine)
 		{
+			_rowTypeConfigurations.Add(typeof(T), new TypeConfiguration(typeof(T)));
 		}
 
 		public FileExportSpecification(string columnDelimeter, string rowDelimeter)
@@ -34,9 +58,10 @@ namespace FileByter
 			};
 		}
 
-		public PropertiesCollection Properties
+		public PropertiesCollection GetPropertiesForType<T>()
 		{
-			get { return _properties; }
+			//TODO: dictionary.Contains & throw if type not configured.
+			return _rowTypeConfigurations[typeof(T)].Properties;
 		}
 
 		public FileExportSpecification<T> AddPropertyFormatter<TProperty>(Expression<Func<T, TProperty>> propertyExpression, PropertyFormatter propertyFormatter, HeaderFormatter headerFormatter)
@@ -63,10 +88,10 @@ namespace FileByter
 			var propertyName = property.PropertyName;
 
 			// Should only add property once
-			if (Properties.ContainsPropertyName(propertyName))
+			if (GetPropertiesForType<T>().ContainsPropertyName(propertyName))
 				throw new ArgumentException("The property [{0}] has been already been specified.".FormatWith(propertyName));
 
-			Properties.AddProperty(propertyName, property);
+			GetPropertiesForType<T>().AddProperty(propertyName, property);
 			return this;
 		}
 
@@ -74,19 +99,19 @@ namespace FileByter
 		{
 			if (propertyExpression == null) throw new ArgumentNullException("propertyExpression");
 			var propertyName = propertyExpression.GetMemberName();
-			Properties.AddExclusion(propertyName);
+			GetPropertiesForType<T>().AddExclusion(propertyName);
 			return this;
 		}
 
 		public string ColumnDelimeter { get; set; }
 		public string RowDelimeter { get; set; }
 
-		public Property this[string propertyName]
+		internal Property this[string propertyName]
 		{
 			get
 			{
-				if (Properties.ContainsPropertyName(propertyName))
-					return Properties[propertyName];
+				if (GetPropertiesForType<T>().ContainsPropertyName(propertyName))
+					return GetPropertiesForType<T>()[propertyName];
 
 				throw new ArgumentException("propertyName not found [{0}]".FormatWith(propertyName));
 			}
@@ -94,14 +119,14 @@ namespace FileByter
 
 		public bool IsPropertyDefined(string propertyName)
 		{
-			if (Properties.ContainsExcludedProperty(propertyName))
+			if (GetPropertiesForType<T>().ContainsExcludedProperty(propertyName))
 				return true;
-			return Properties.ContainsPropertyName(propertyName);
+			return GetPropertiesForType<T>().ContainsPropertyName(propertyName);
 		}
 
 		public bool IsPropertyExcluded(string propertyName)
 		{
-			return Properties.IsExcluded(propertyName);
+			return GetPropertiesForType<T>().IsExcluded(propertyName);
 		}
 
 		private bool _excludeNonConfiguredProperties;

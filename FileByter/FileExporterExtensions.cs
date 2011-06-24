@@ -10,7 +10,7 @@ namespace FileByter
 		private static string WriteTheHeader<T>(FileExportSpecification<T> spec)
 		{
 			var sb = new StringBuilder();
-			var allPropertyValues = spec.Properties.Values.ToList();
+			var allPropertyValues = spec.GetPropertiesForType<T>().Values.ToList();
 			for (var i = 0; i < allPropertyValues.Count; i++)
 			{
 				var property = allPropertyValues[i];
@@ -28,7 +28,7 @@ namespace FileByter
 		{
 			var columnDelimeter = spec.ColumnDelimeter;
 			var sb = new StringBuilder();
-			var allPropertyValues = spec.Properties.Values.ToList();
+			var allPropertyValues = spec.GetPropertiesForType<T>().Values.ToList();
 			for (var i = 0; i < allPropertyValues.Count; i++)
 			{
 				var property = allPropertyValues[i];
