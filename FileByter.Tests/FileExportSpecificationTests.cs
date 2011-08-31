@@ -263,6 +263,33 @@ SaySomething");
 4,What?
 ");
 		}
+
+
+		public class SampleClass1
+		{
+			public string Foo { get; set; }
+		}
+		public class SampleClass2
+		{
+			public string Foo { get; set; }
+		}
+
+		[Fact]
+		public void Should_throw_helpful_message_when_trying_to_export_items_of_an_unknown_type()
+		{
+			var items = new[]
+			{
+				new SampleClass1(),
+			};
+
+			var exceptionThrown = typeof(FileByter.FileExportException)
+				.ShouldBeThrownBy(() => new FileExport<SampleClass2>()
+										.CreateSpec()
+										.ExportToString(items));
+
+			exceptionThrown.Message.ShouldContain("SampleClass2");
+		}
+
 	}
 
 	public static class Extensions

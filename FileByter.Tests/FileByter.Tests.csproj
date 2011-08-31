@@ -44,7 +44,7 @@
     <Compile Include="FileExportSpecificationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpecBase.cs" />
-    <Compile Include="TestHelpers\SpecificationExtensions.cs" />
+    <Compile Include="SpecExtensions\xUnitSpecificationExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

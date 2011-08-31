@@ -46,8 +46,12 @@ namespace FileByter
 
 		public PropertiesCollection GetPropertiesForType(Type type)
 		{
-			//TODO: dictionary.Contains & throw if type not configured.
-			return RowTypeConfigurations[type].Properties;
+			if(RowTypeConfigurations.ContainsKey(type))
+				return RowTypeConfigurations[type].Properties;
+
+			var msg = string.Join(", ", RowTypeConfigurations.Values);
+
+			throw new FileExportException("Cannot export unknown type [{0}] as it was not defined within the file export specification. The following types have been defined [{1}]".FormatWith(type.FullName, msg));
 		}
 
 		internal TypeConfiguration GetTypeConfiguration<T>()
