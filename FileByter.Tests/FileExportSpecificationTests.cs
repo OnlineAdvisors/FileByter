@@ -26,7 +26,7 @@ namespace FileByter.Tests
 		public void Should_use_the_default_formatter_of_object()
 		{
 			var fileExportSpecification = _specFactory.CreateSpec();
-			fileExportSpecification.ColumnDelimeter = "	";
+			fileExportSpecification.ColumnDelimiter = "	";
 
 			var simpleObject = new SimpleObject { Id = 2 };
 
@@ -104,7 +104,7 @@ namespace FileByter.Tests
 		}
 
 		[Fact]
-		public void Should_output_empty_items_with_delimeter_correctly()
+		public void Should_output_empty_items_with_delimiter_correctly()
 		{
 			var items = new[]
 				            	{
@@ -205,7 +205,7 @@ SaySomething");
 
 
 		[Fact]
-		public void When_a_value_contains_a_delimeter_then_should_throw_an_exception()
+		public void When_a_value_contains_a_delimiter_then_should_throw_an_exception()
 		{
 			var items = new[]
 			{
@@ -216,14 +216,14 @@ SaySomething");
 			{
 				var actual = GetExportResult(items, cfg =>
 				{
-					cfg.ColumnDelimeter = "~";
+					cfg.ColumnDelimiter = "~";
 				});
 			});
 		}
 
 
 		[Fact]
-		public void When_a_value_contains_a_delimeter_is_found_should_be_able_to_provide_handler()
+		public void When_a_value_contains_a_delimiter_is_found_should_be_able_to_provide_handler()
 		{
 			var items = new[]
 			{
@@ -232,8 +232,8 @@ SaySomething");
 
 			var actual = GetExportResult(items, cfg =>
 			{
-				cfg.ColumnDelimeter = "~";
-				cfg.OnDelimeterFoundInValue = (propertyName, delimeter, value) => "SomeOtherValue";
+				cfg.ColumnDelimiter = "~";
+				cfg.OnDelimiterFoundInValue = (propertyName, delimiter, value) => "SomeOtherValue";
 			});
 
 			actual.ShouldEqual(@"1~SomeOtherValue

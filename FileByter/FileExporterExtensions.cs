@@ -21,14 +21,14 @@ namespace FileByter
 				sb.Append(formattedValue);
 
 				if (i < (allPropertyValues.Count - 1))
-					sb.Append(spec.ColumnDelimeter);
+					sb.Append(spec.ColumnDelimiter);
 			}
 
 			return sb.ToString();
 		}
 		private static string ReadItemIntoRow(FileExportSpecification spec, object item)
 		{
-			var columnDelimeter = spec.ColumnDelimeter;
+			var columnDelimiter = spec.ColumnDelimiter;
 			var sb = new StringBuilder();
 			var allPropertyValues = spec.GetPropertiesForType(item.GetType()).Values.ToList();
 			for (var i = 0; i < allPropertyValues.Count; i++)
@@ -37,13 +37,13 @@ namespace FileByter
 
 				string formattedValue = property.GetFormattedValue(item);
 
-				if (formattedValue.Contains(columnDelimeter))
-					formattedValue = spec.OnDelimeterFoundInValue(property.PropertyName, columnDelimeter, formattedValue);
+				if (formattedValue.Contains(columnDelimiter))
+					formattedValue = spec.OnDelimiterFoundInValue(property.PropertyName, columnDelimiter, formattedValue);
 
 				sb.Append(formattedValue);
 
 				if (i < (allPropertyValues.Count - 1))
-					sb.Append(columnDelimeter);
+					sb.Append(columnDelimiter);
 			}
 
 			return sb.ToString();
@@ -56,7 +56,7 @@ namespace FileByter
 			{
 				if (!isFirstRow)
 				{
-					writer.Write(spec.RowDelimeter);
+					writer.Write(spec.RowDelimiter);
 				}
 				else
 				{
@@ -67,14 +67,14 @@ namespace FileByter
 					if (!string.IsNullOrEmpty(prePendValue))
 					{
 						writer.Write(prePendValue);
-						writer.Write(spec.RowDelimeter);
+						writer.Write(spec.RowDelimiter);
 					}
 
 					// Write the Header row
 					if (spec.IncludeHeader)
 					{
 						writer.Write(WriteTheHeader(item.GetType(), spec));
-						writer.Write(spec.RowDelimeter);
+						writer.Write(spec.RowDelimiter);
 					}
 				}
 				isFirstRow = false;
@@ -83,7 +83,7 @@ namespace FileByter
 				writer.Write(rowText);
 			}
 
-			writer.Write(spec.RowDelimeter);
+			writer.Write(spec.RowDelimiter);
 
 			//TODO: Not happy with the API for prepending and appending to a file
 			var apendValue = spec.AppendFileWithValue;

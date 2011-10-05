@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace FileByter
 {
-	public delegate string DelimeterFoundInValue(string propertyName, string columnDelimeter, string value);
+	public delegate string DelimiterFoundInValue(string propertyName, string columnDelimiter, string value);
 
 	public class FileExportSpecification
 	{
@@ -12,11 +11,11 @@ namespace FileByter
 
 		private readonly HeaderFormatter _defaultHeaderFormatter = pi => pi.Name;
 		public HeaderFormatter DefaultHeaderFormatter { get { return _defaultHeaderFormatter; } }
-		public string ColumnDelimeter { get; set; }
-		public string RowDelimeter { get; set; }
-		public DelimeterFoundInValue OnDelimeterFoundInValue { get; set; }
+		public string ColumnDelimiter { get; set; }
+		public string RowDelimiter { get; set; }
+		public DelimiterFoundInValue OnDelimiterFoundInValue { get; set; }
 
-		public FileExportSpecification(IEnumerable<Type> rowTypes, string columnDelimeter, string rowDelimeter)
+		public FileExportSpecification(IEnumerable<Type> rowTypes, string columnDelimiter, string rowDelimiter)
 		{
 			if (rowTypes == null) throw new ArgumentNullException("rowTypes");
 
@@ -29,13 +28,13 @@ namespace FileByter
 			}
 
 
-			ColumnDelimeter = columnDelimeter;
-			RowDelimeter = rowDelimeter;
-			OnDelimeterFoundInValue = (string propertyName, string columnDelimeterX, string value) =>
+			ColumnDelimiter = columnDelimiter;
+			RowDelimiter = rowDelimiter;
+			OnDelimiterFoundInValue = (string propertyName, string columnDelimiterX, string value) =>
 			{
 				throw new FileExportException
-					("Item with propertyName[{0}] and value[{1}] contained column delimeter [{2}]"
-						.FormatWith(propertyName, value, columnDelimeterX));
+					("Item with propertyName[{0}] and value[{1}] contained column delimiter [{2}]"
+						.FormatWith(propertyName, value, columnDelimiterX));
 			};
 		}
 
