@@ -1,0 +1,3 @@
+You can checkout the Wiki for more information...
+
+https://github.com/OnlineAdvisors/FileByter/wiki
